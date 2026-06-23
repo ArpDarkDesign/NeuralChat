@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import TypingIndicator from "../components/TypingIndicator";
 import { sendMessageToAI } from "../services/aiService";
 import { getChats, saveChat, deleteChat } from "../services/chatService";
+import { getStoredChatThemeId } from "../theme/chatThemes";
 
 const currentTime = () =>
   new Date().toLocaleTimeString([], {
@@ -14,8 +15,12 @@ const currentTime = () =>
     minute: "2-digit",
   });
 
+const isMatchingChat = (chat, chatId) =>
+  chat._id === chatId || chat.id === chatId || chat.clientTempId === chatId;
+
 function Chat() {
   const messagesEndRef = useRef(null);
+  const [chatTheme, setChatTheme] = useState(getStoredChatThemeId);
 
   const [currentUser] = useState(JSON.parse(localStorage.getItem("user")));
 
@@ -53,7 +58,7 @@ function Chat() {
 
     setConversations((prev) =>
       prev.map((chat) => {
-        if ((chat._id || chat.id) !== currentChatId) return chat;
+        if (!isMatchingChat(chat, currentChatId)) return chat;
 
         const updatedTitle =
           chat.title === "New Chat"
@@ -81,7 +86,7 @@ function Chat() {
 
     setConversations((prev) =>
       prev.map((chat) => {
-        if ((chat._id || chat.id) !== currentChatId) return chat;
+        if (!isMatchingChat(chat, currentChatId)) return chat;
 
         return {
           ...chat,
@@ -102,7 +107,7 @@ function Chat() {
       await sendMessageToAI(message, (streamedText) => {
         setConversations((prev) =>
           prev.map((chat) => {
-            if ((chat._id || chat.id) !== currentChatId) return chat;
+            if (!isMatchingChat(chat, currentChatId)) return chat;
 
             return {
               ...chat,
@@ -123,7 +128,7 @@ function Chat() {
 
       setConversations((prev) =>
         prev.map((chat) => {
-          if ((chat._id || chat.id) !== currentChatId) return chat;
+          if (!isMatchingChat(chat, currentChatId)) return chat;
 
           return {
             ...chat,
@@ -193,6 +198,26 @@ function Chat() {
   };
 
   useEffect(() => {
+    document.body.dataset.chatTheme = chatTheme;
+
+    return () => {
+      delete document.body.dataset.chatTheme;
+    };
+  }, [chatTheme]);
+
+  useEffect(() => {
+    const syncTheme = () => setChatTheme(getStoredChatThemeId());
+
+    window.addEventListener("storage", syncTheme);
+    window.addEventListener("focus", syncTheme);
+
+    return () => {
+      window.removeEventListener("storage", syncTheme);
+      window.removeEventListener("focus", syncTheme);
+    };
+  }, []);
+
+  useEffect(() => {
     const container = document.querySelector(".messages-area");
 
     if (!container) return;
@@ -251,7 +276,12 @@ function Chat() {
           ) {
             setConversations((prev) =>
               prev.map((chat) =>
-                chat._id === activeConversation._id ? savedChat : chat,
+                chat._id === activeConversation._id
+                  ? {
+                      ...savedChat,
+                      clientTempId: activeConversation._id,
+                    }
+                  : chat,
               ),
             );
 
@@ -268,7 +298,7 @@ function Chat() {
   }, [activeConversation?.messages]);
 
   return (
-    <div className="chat-page">
+    <div className={`chat-page chat-theme-${chatTheme}`}>
       <Sidebar
         conversations={conversations}
         activeChatId={activeChatId}

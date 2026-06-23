@@ -4,6 +4,12 @@ import { getUserStats } from "../services/chatService";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import { uploadAvatar, deleteAccount } from "../services/userService";
+import {
+  CHAT_THEME_STORAGE_KEY,
+  CHAT_THEMES,
+  getChatThemeById,
+  getStoredChatThemeId,
+} from "../theme/chatThemes";
 
 function Profile() {
   const storedUser = localStorage.getItem("user");
@@ -22,6 +28,14 @@ function Profile() {
   });
 
   const [avatar, setAvatar] = useState(user?.avatar || "");
+  const [selectedTheme, setSelectedTheme] = useState(getStoredChatThemeId);
+
+  const activeTheme = getChatThemeById(selectedTheme);
+
+  const handleThemeSelect = (themeId) => {
+    setSelectedTheme(themeId);
+    localStorage.setItem(CHAT_THEME_STORAGE_KEY, themeId);
+  };
 
   const handleAvatarUpload = async (e) => {
     try {
@@ -191,6 +205,48 @@ function Profile() {
           <p className="xp-text">{xp}/25 XP</p>
         </div>
 
+        <div className="theme-card">
+          <div className="theme-card-header">
+            <div>
+              <p className="theme-kicker">Chat Theme</p>
+              <h2>{activeTheme.icon} {activeTheme.name}</h2>
+            </div>
+
+            <span className="active-theme-pill">Active</span>
+          </div>
+
+          <div className="theme-options">
+            {CHAT_THEMES.map((theme) => (
+              <button
+                key={theme.id}
+                type="button"
+                className={`theme-option ${
+                  selectedTheme === theme.id ? "active" : ""
+                }`}
+                onClick={() => handleThemeSelect(theme.id)}
+                aria-pressed={selectedTheme === theme.id}
+              >
+                <span className="theme-option-top">
+                  <span className="theme-icon">{theme.icon}</span>
+                  <span className="theme-name">{theme.name}</span>
+                </span>
+
+                <span className="theme-description">{theme.description}</span>
+
+                <span className="theme-swatches">
+                  {theme.swatches.map((color) => (
+                    <span
+                      key={color}
+                      className="theme-swatch"
+                      style={{ background: color }}
+                    ></span>
+                  ))}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Dashboard Grid */}
 
         <div className="profile-grid">
@@ -335,7 +391,7 @@ function Profile() {
 
             <div className="stat-row">
               <span>Theme</span>
-              <span>Neural Dark</span>
+              <span>{activeTheme.name}</span>
             </div>
           </div>
         </div>
