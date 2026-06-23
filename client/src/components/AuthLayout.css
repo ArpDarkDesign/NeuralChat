@@ -1,0 +1,74 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  background: #060816;
+  overflow: hidden;
+  position: relative;
+}
+
+.auth-left,
+.auth-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding: 4rem;
+}
+
+.auth-left {
+  color: white;
+}
+
+.auth-left h1 {
+  font-size: 5rem;
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.auth-left p {
+  max-width: 500px;
+  color: #9ca3af;
+  line-height: 1.7;
+}
+
+.brand {
+  margin-bottom: 2rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.brand-dot {
+  width: 10px;
+  height: 10px;
+  background: #8b5cf6;
+  display: inline-block;
+  border-radius: 50%;
+  margin-right: 10px;
+  box-shadow: 0 0 20px #8b5cf6;
+}
+
+.auth-right {
+  align-items: center;
+}
+
+.auth-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+}
+
+.auth-glow-1 {
+  width: 400px;
+  height: 400px;
+  background: #7c3aed;
+  top: -100px;
+  left: -100px;
+}
+
+.auth-glow-2 {
+  width: 350px;
+  height: 350px;
+  background: #2563eb;
+  bottom: -100px;
+  right: -100px;
+}
