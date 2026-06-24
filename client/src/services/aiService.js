@@ -28,3 +28,36 @@ export const sendMessageToAI = async (message, onChunk) => {
 
   return fullResponse;
 };
+
+export const generateChatTitle = async (userMessage, aiResponse) => {
+  const prompt = `
+Create a concise, professional chat title using the conversation below.
+
+Rules:
+- Return only the title.
+- Use 2 to 5 words.
+- Do not use quotes.
+- Do not use punctuation at the start or end.
+
+User: ${userMessage}
+Assistant: ${aiResponse}
+`;
+
+  const response = await sendMessageToAI(prompt, () => {});
+  const cleanedTitle = response
+    .trim()
+    .split("\n")[0]
+    .replace(/^[\s"'`*_#\-–—:;,.!?()[\]{}]+/, "")
+    .replace(/[\s"'`*_#\-–—:;,.!?()[\]{}]+$/, "")
+    .trim();
+
+  if (!cleanedTitle) return null;
+
+  const words = cleanedTitle.split(/\s+/).slice(0, 5);
+
+  if (words.length === 1) {
+    words.push("Overview");
+  }
+
+  return words.join(" ");
+};

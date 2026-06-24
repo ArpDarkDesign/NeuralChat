@@ -5,7 +5,7 @@ import ChatMessage from "../components/ChatMessage";
 import "./Chat.css";
 import { useState, useEffect, useRef } from "react";
 import TypingIndicator from "../components/TypingIndicator";
-import { sendMessageToAI } from "../services/aiService";
+import { generateChatTitle, sendMessageToAI } from "../services/aiService";
 import { getChats, saveChat, deleteChat } from "../services/chatService";
 import { getStoredChatThemeId } from "../theme/chatThemes";
 
@@ -43,6 +43,10 @@ function Chat() {
 
   const [conversations, setConversations] = useState([initialChat]);
   const [activeChatId, setActiveChatId] = useState(initialChat.id);
+  const newChatIdsRef = useRef(new Set([initialChat.id]));
+  const firstUserMessagesRef = useRef(new Map());
+  const titleAttemptedChatIdsRef = useRef(new Set());
+  const manuallyRenamedChatIdsRef = useRef(new Set());
 
   const [isTyping, setIsTyping] = useState(false);
 
@@ -55,6 +59,13 @@ function Chat() {
     const currentChatId = activeChatId;
 
     if (!message) return;
+
+    if (
+      newChatIdsRef.current.has(currentChatId) &&
+      !firstUserMessagesRef.current.has(currentChatId)
+    ) {
+      firstUserMessagesRef.current.set(currentChatId, message);
+    }
 
     setConversations((prev) =>
       prev.map((chat) => {
@@ -104,7 +115,7 @@ function Chat() {
     );
 
     try {
-      await sendMessageToAI(message, (streamedText) => {
+      const aiResponse = await sendMessageToAI(message, (streamedText) => {
         setConversations((prev) =>
           prev.map((chat) => {
             if (!isMatchingChat(chat, currentChatId)) return chat;
@@ -123,6 +134,44 @@ function Chat() {
           }),
         );
       });
+
+      if (
+        aiResponse.trim() &&
+        newChatIdsRef.current.has(currentChatId) &&
+        !titleAttemptedChatIdsRef.current.has(currentChatId)
+      ) {
+        titleAttemptedChatIdsRef.current.add(currentChatId);
+
+        try {
+          const generatedTitle = await generateChatTitle(
+            firstUserMessagesRef.current.get(currentChatId),
+            aiResponse,
+          );
+
+          if (generatedTitle) {
+            setConversations((prev) =>
+              prev.map((chat) => {
+                if (!isMatchingChat(chat, currentChatId)) return chat;
+
+                const wasManuallyRenamed =
+                  manuallyRenamedChatIdsRef.current.has(currentChatId) ||
+                  manuallyRenamedChatIdsRef.current.has(chat._id) ||
+                  manuallyRenamedChatIdsRef.current.has(chat.clientTempId);
+
+                if (wasManuallyRenamed) return chat;
+
+                return {
+                  ...chat,
+                  title: generatedTitle,
+                  messages: [...chat.messages],
+                };
+              }),
+            );
+          }
+        } catch (error) {
+          console.error("Title generation failed:", error);
+        }
+      }
     } catch (error) {
       console.error(error);
 
@@ -154,6 +203,7 @@ function Chat() {
       title: "New Chat",
       messages: welcomeMessages,
     };
+    newChatIdsRef.current.add(newChat._id);
     setConversations((prev) => [newChat, ...prev]);
 
     setActiveChatId(newChat._id);
@@ -186,14 +236,20 @@ function Chat() {
     if (!newTitle.trim()) return;
 
     setConversations((prev) =>
-      prev.map((chat) =>
-        (chat._id || chat.id) === chatId
-          ? {
-              ...chat,
-              title: newTitle,
-            }
-          : chat,
-      ),
+      prev.map((chat) => {
+        if ((chat._id || chat.id) !== chatId) return chat;
+
+        manuallyRenamedChatIdsRef.current.add(chatId);
+
+        if (chat.clientTempId) {
+          manuallyRenamedChatIdsRef.current.add(chat.clientTempId);
+        }
+
+        return {
+          ...chat,
+          title: newTitle,
+        };
+      }),
     );
   };
 
