@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function Sidebar({
@@ -9,19 +11,37 @@ function Sidebar({
   onRenameChat,
 }) {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const user = JSON.parse(localStorage.getItem("user"));
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const filteredConversations = conversations.filter((chat) =>
+    String(chat.title ?? "")
+      .toLowerCase()
+      .includes(normalizedSearchQuery),
+  );
 
   return (
     <div className="sidebar">
       <div className="sidebar-logo">⚡ NeuralChat</div>
+
+      <div className="sidebar-search">
+        <Search className="sidebar-search-icon" size={17} aria-hidden="true" />
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search chats"
+          aria-label="Search chats by title"
+        />
+      </div>
 
       <button className="new-chat-btn" onClick={onNewChat}>
         + New Chat
       </button>
 
       <div className="chat-history">
-        {conversations.map((chat) => {
+        {filteredConversations.map((chat) => {
           const chatId = chat._id || chat.id;
 
           return (
