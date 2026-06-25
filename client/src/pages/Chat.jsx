@@ -121,120 +121,122 @@ function Chat() {
       }),
     );
 
-    try {
-      const aiResponse = await sendMessageToAI(
-        message,
-        (streamedText) => {
-          setConversations((prev) =>
-            prev.map((chat) => {
-              if (!isMatchingChat(chat, currentChatId)) return chat;
+    setIsTyping(true);
 
-              return {
-                ...chat,
-                messages: chat.messages.map((msg) =>
-                  msg.id === botMessageId
-                    ? {
-                        ...msg,
-                        text: streamedText,
-                      }
-                    : msg,
-                ),
-              };
-            }),
-          );
-        },
-        images,
-        (cloudinaryUrls) => {
-          blobUrls.forEach((url) => URL.revokeObjectURL(url));
-
-          setConversations((prev) =>
-            prev.map((chat) => {
-              if (!isMatchingChat(chat, currentChatId)) return chat;
-
-              const messages = [...chat.messages];
-
-              for (let i = messages.length - 1; i >= 0; i--) {
-                if (messages[i].sender === "user") {
-                  messages[i] = {
-                    ...messages[i],
-                    images: cloudinaryUrls,
-                  };
-                  break;
-                }
-              }
-
-              return {
-                ...chat,
-                messages,
-              };
-            }),
-          );
-        },
-      );
-
-      if (
-        aiResponse.trim() &&
-        newChatIdsRef.current.has(currentChatId) &&
-        !titleAttemptedChatIdsRef.current.has(currentChatId)
-      ) {
-        titleAttemptedChatIdsRef.current.add(currentChatId);
-
-        try {
-          const generatedTitle = await generateChatTitle(
-            firstUserMessagesRef.current.get(currentChatId),
-            aiResponse,
-          );
-
-          if (generatedTitle) {
+    (async () => {
+      try {
+        const aiResponse = await sendMessageToAI(
+          message,
+          (streamedText) => {
             setConversations((prev) =>
               prev.map((chat) => {
                 if (!isMatchingChat(chat, currentChatId)) return chat;
 
-                const wasManuallyRenamed =
-                  manuallyRenamedChatIdsRef.current.has(currentChatId) ||
-                  manuallyRenamedChatIdsRef.current.has(chat._id) ||
-                  manuallyRenamedChatIdsRef.current.has(chat.clientTempId);
-
-                if (wasManuallyRenamed) return chat;
-
                 return {
                   ...chat,
-                  title: generatedTitle,
-                  messages: [...chat.messages],
+                  messages: chat.messages.map((msg) =>
+                    msg.id === botMessageId
+                      ? {
+                          ...msg,
+                          text: streamedText,
+                        }
+                      : msg,
+                  ),
                 };
               }),
             );
+          },
+          images,
+          (cloudinaryUrls) => {
+            blobUrls.forEach((url) => URL.revokeObjectURL(url));
+
+            setConversations((prev) =>
+              prev.map((chat) => {
+                if (!isMatchingChat(chat, currentChatId)) return chat;
+
+                const messages = [...chat.messages];
+
+                for (let i = messages.length - 1; i >= 0; i--) {
+                  if (messages[i].sender === "user") {
+                    messages[i] = {
+                      ...messages[i],
+                      images: cloudinaryUrls,
+                    };
+                    break;
+                  }
+                }
+
+                return {
+                  ...chat,
+                  messages,
+                };
+              }),
+            );
+          },
+        );
+
+        if (
+          aiResponse.trim() &&
+          newChatIdsRef.current.has(currentChatId) &&
+          !titleAttemptedChatIdsRef.current.has(currentChatId)
+        ) {
+          titleAttemptedChatIdsRef.current.add(currentChatId);
+
+          try {
+            const generatedTitle = await generateChatTitle(
+              firstUserMessagesRef.current.get(currentChatId),
+              aiResponse,
+            );
+
+            if (generatedTitle) {
+              setConversations((prev) =>
+                prev.map((chat) => {
+                  if (!isMatchingChat(chat, currentChatId)) return chat;
+
+                  const wasManuallyRenamed =
+                    manuallyRenamedChatIdsRef.current.has(currentChatId) ||
+                    manuallyRenamedChatIdsRef.current.has(chat._id) ||
+                    manuallyRenamedChatIdsRef.current.has(chat.clientTempId);
+
+                  if (wasManuallyRenamed) return chat;
+
+                  return {
+                    ...chat,
+                    title: generatedTitle,
+                    messages: [...chat.messages],
+                  };
+                }),
+              );
+            }
+          } catch (error) {
+            console.error("Title generation failed:", error);
           }
-        } catch (error) {
-          console.error("Title generation failed:", error);
         }
+      } catch (error) {
+        console.error(error);
+
+        setConversations((prev) =>
+          prev.map((chat) => {
+            if (!isMatchingChat(chat, currentChatId)) return chat;
+
+            return {
+              ...chat,
+              messages: [
+                ...chat.messages,
+                {
+                  sender: "bot",
+                  text: "Sorry, something went wrong.",
+                  time: currentTime(),
+                },
+              ],
+            };
+          }),
+        );
+      } finally {
+        setIsTyping(false);
       }
-    } catch (error) {
-      console.error(error);
+    })();
 
-      setConversations((prev) =>
-        prev.map((chat) => {
-          if (!isMatchingChat(chat, currentChatId)) return chat;
-
-          return {
-            ...chat,
-            messages: [
-              ...chat.messages,
-              {
-                sender: "bot",
-                text: "Sorry, something went wrong.",
-                time: currentTime(),
-              },
-            ],
-          };
-        }),
-      );
-
-      setIsTyping(false);
-      return false;
-    }
-
-    setIsTyping(false);
     return true;
   };
 

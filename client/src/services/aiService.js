@@ -1,3 +1,23 @@
+const IMAGE_URLS_MARKER = "\x00NEURALCHAT_IMAGE_URLS:";
+const IMAGE_URLS_PATTERN = /\x00NEURALCHAT_IMAGE_URLS:\[[^\]]*\]/;
+
+const parseStreamContent = (fullResponse) => {
+  const match = fullResponse.match(/\x00NEURALCHAT_IMAGE_URLS:(\[[^\]]*\])/);
+
+  if (!match) {
+    return { displayText: fullResponse, imageUrls: null };
+  }
+
+  const displayText = fullResponse.replace(IMAGE_URLS_PATTERN, "");
+
+  try {
+    const imageUrls = JSON.parse(match[1]);
+    return { displayText, imageUrls };
+  } catch {
+    return { displayText, imageUrls: null };
+  }
+};
+
 export const sendMessageToAI = async (
   message,
   onChunk,
@@ -25,31 +45,39 @@ export const sendMessageToAI = async (
     throw new Error((await response.text()) || "AI request failed");
   }
 
-  const imageUrlsHeader = response.headers.get("X-Image-Urls");
-  const imageUrls = imageUrlsHeader ? JSON.parse(imageUrlsHeader) : [];
-
-  if (imageUrls.length > 0 && onImageUrls) {
-    onImageUrls(imageUrls);
-  }
-
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
 
   let fullResponse = "";
+  let imageUrlsDelivered = false;
 
   while (true) {
     const { done, value } = await reader.read();
 
     if (done) break;
 
-    const chunk = decoder.decode(value);
+    fullResponse += decoder.decode(value, { stream: true });
 
-    fullResponse += chunk;
+    const { displayText, imageUrls } = parseStreamContent(fullResponse);
 
-    onChunk(fullResponse);
+    onChunk(displayText);
+
+    if (imageUrls?.length > 0 && onImageUrls && !imageUrlsDelivered) {
+      onImageUrls(imageUrls);
+      imageUrlsDelivered = true;
+    }
   }
 
-  return fullResponse;
+  fullResponse += decoder.decode();
+  const { displayText, imageUrls } = parseStreamContent(fullResponse);
+
+  onChunk(displayText);
+
+  if (imageUrls?.length > 0 && onImageUrls && !imageUrlsDelivered) {
+    onImageUrls(imageUrls);
+  }
+
+  return displayText;
 };
 
 export const generateChatTitle = async (userMessage, aiResponse) => {

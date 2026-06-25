@@ -1,6 +1,8 @@
 const { getAIResponseStream } = require("../services/aiService");
 const { uploadImages } = require("../utils/cloudinary");
 
+const IMAGE_URLS_MARKER = "\x00NEURALCHAT_IMAGE_URLS:";
+
 const chatWithAI = async (req, res) => {
   try {
     const { message } = req.body;
@@ -17,12 +19,16 @@ const chatWithAI = async (req, res) => {
       });
     }
 
-    if (images.length > 0) {
-      const imageUrls = await uploadImages(images);
-      res.setHeader("Access-Control-Expose-Headers", "X-Image-Urls");
-      res.setHeader("X-Image-Urls", JSON.stringify(imageUrls));
-    }
+    const uploadPromise =
+      images.length > 0
+        ? uploadImages(images).then((imageUrls) => {
+            if (imageUrls.length > 0 && !res.writableEnded) {
+              res.write(`${IMAGE_URLS_MARKER}${JSON.stringify(imageUrls)}`);
+            }
 
+            return imageUrls;
+          })
+        : null;
     const stream = await getAIResponseStream(message, images);
 
     res.setHeader("Content-Type", "text/plain");
@@ -33,6 +39,14 @@ const chatWithAI = async (req, res) => {
 
       if (content) {
         res.write(content);
+      }
+    }
+
+    if (uploadPromise) {
+      try {
+        await uploadPromise;
+      } catch (uploadError) {
+        console.error("Cloudinary upload failed:", uploadError);
       }
     }
 
