@@ -50,6 +50,44 @@ function Chat() {
 
   const [isTyping, setIsTyping] = useState(false);
 
+  const generateTitleForChat = async (chatId, aiResponse) => {
+    if (!aiResponse.trim()) return;
+    if (!newChatIdsRef.current.has(chatId)) return;
+    if (titleAttemptedChatIdsRef.current.has(chatId)) return;
+
+    titleAttemptedChatIdsRef.current.add(chatId);
+
+    try {
+      const generatedTitle = await generateChatTitle(
+        firstUserMessagesRef.current.get(chatId),
+        aiResponse,
+      );
+
+      if (generatedTitle) {
+        setConversations((prev) =>
+          prev.map((chat) => {
+            if (!isMatchingChat(chat, chatId)) return chat;
+
+            const wasManuallyRenamed =
+              manuallyRenamedChatIdsRef.current.has(chatId) ||
+              manuallyRenamedChatIdsRef.current.has(chat._id) ||
+              manuallyRenamedChatIdsRef.current.has(chat.clientTempId);
+
+            if (wasManuallyRenamed) return chat;
+
+            return {
+              ...chat,
+              title: generatedTitle,
+              messages: [...chat.messages],
+            };
+          }),
+        );
+      }
+    } catch (error) {
+      console.error("Title generation failed:", error);
+    }
+  };
+
   const activeConversation = conversations.find(
     (chat) => chat.id === activeChatId || chat._id === activeChatId,
   );
@@ -123,9 +161,15 @@ function Chat() {
 
     setIsTyping(true);
 
+    let typingHideTimer = null;
+
     (async () => {
+      const finishStreamingUi = (aiResponse) => {
+        generateTitleForChat(currentChatId, aiResponse);
+      };
+
       try {
-        const aiResponse = await sendMessageToAI(
+        await sendMessageToAI(
           message,
           (streamedText) => {
             setConversations((prev) =>
@@ -145,6 +189,15 @@ function Chat() {
                 };
               }),
             );
+
+            if (streamedText.length > 0) {
+              setIsTyping(false);
+            }
+
+            if (typingHideTimer) clearTimeout(typingHideTimer);
+            typingHideTimer = setTimeout(() => {
+              finishStreamingUi(streamedText);
+            }, 400);
           },
           images,
           (cloudinaryUrls) => {
@@ -174,44 +227,6 @@ function Chat() {
             );
           },
         );
-
-        if (
-          aiResponse.trim() &&
-          newChatIdsRef.current.has(currentChatId) &&
-          !titleAttemptedChatIdsRef.current.has(currentChatId)
-        ) {
-          titleAttemptedChatIdsRef.current.add(currentChatId);
-
-          try {
-            const generatedTitle = await generateChatTitle(
-              firstUserMessagesRef.current.get(currentChatId),
-              aiResponse,
-            );
-
-            if (generatedTitle) {
-              setConversations((prev) =>
-                prev.map((chat) => {
-                  if (!isMatchingChat(chat, currentChatId)) return chat;
-
-                  const wasManuallyRenamed =
-                    manuallyRenamedChatIdsRef.current.has(currentChatId) ||
-                    manuallyRenamedChatIdsRef.current.has(chat._id) ||
-                    manuallyRenamedChatIdsRef.current.has(chat.clientTempId);
-
-                  if (wasManuallyRenamed) return chat;
-
-                  return {
-                    ...chat,
-                    title: generatedTitle,
-                    messages: [...chat.messages],
-                  };
-                }),
-              );
-            }
-          } catch (error) {
-            console.error("Title generation failed:", error);
-          }
-        }
       } catch (error) {
         console.error(error);
 
@@ -233,6 +248,7 @@ function Chat() {
           }),
         );
       } finally {
+        if (typingHideTimer) clearTimeout(typingHideTimer);
         setIsTyping(false);
       }
     })();
@@ -377,7 +393,8 @@ function Chat() {
               prev.map((chat) =>
                 chat._id === activeConversation._id
                   ? {
-                      ...savedChat,
+                      ...chat,
+                      _id: savedChat._id,
                       clientTempId: activeConversation._id,
                     }
                   : chat,
