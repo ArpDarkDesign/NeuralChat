@@ -1,4 +1,5 @@
 const { getAIResponseStream } = require("../services/aiService");
+const { uploadImages } = require("../utils/cloudinary");
 
 const chatWithAI = async (req, res) => {
   try {
@@ -14,6 +15,12 @@ const chatWithAI = async (req, res) => {
       return res.status(400).json({
         message: "Only PNG, JPG, JPEG, and WebP images are supported.",
       });
+    }
+
+    if (images.length > 0) {
+      const imageUrls = await uploadImages(images);
+      res.setHeader("Access-Control-Expose-Headers", "X-Image-Urls");
+      res.setHeader("X-Image-Urls", JSON.stringify(imageUrls));
     }
 
     const stream = await getAIResponseStream(message, images);

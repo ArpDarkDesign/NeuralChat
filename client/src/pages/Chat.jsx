@@ -70,6 +70,8 @@ function Chat() {
       firstUserMessagesRef.current.set(currentChatId, displayedMessage);
     }
 
+    const blobUrls = images.map((file) => URL.createObjectURL(file));
+
     setConversations((prev) =>
       prev.map((chat) => {
         if (!isMatchingChat(chat, currentChatId)) return chat;
@@ -90,7 +92,7 @@ function Chat() {
             {
               sender: "user",
               text: displayedMessage,
-              images: images.map((file) => URL.createObjectURL(file)),
+              images: blobUrls,
               time: currentTime(),
             },
           ],
@@ -142,6 +144,32 @@ function Chat() {
           );
         },
         images,
+        (cloudinaryUrls) => {
+          blobUrls.forEach((url) => URL.revokeObjectURL(url));
+
+          setConversations((prev) =>
+            prev.map((chat) => {
+              if (!isMatchingChat(chat, currentChatId)) return chat;
+
+              const messages = [...chat.messages];
+
+              for (let i = messages.length - 1; i >= 0; i--) {
+                if (messages[i].sender === "user") {
+                  messages[i] = {
+                    ...messages[i],
+                    images: cloudinaryUrls,
+                  };
+                  break;
+                }
+              }
+
+              return {
+                ...chat,
+                messages,
+              };
+            }),
+          );
+        },
       );
 
       if (

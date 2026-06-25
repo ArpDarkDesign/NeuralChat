@@ -102,9 +102,20 @@ const getUserStats = async (req, res) => {
   }
 };
 
+const sanitizeMessages = (messages = []) =>
+  messages.map((msg) => ({
+    sender: msg.sender,
+    text: msg.text,
+    time: msg.time,
+    images: (msg.images || []).filter(
+      (url) => typeof url === "string" && /^https?:\/\//.test(url),
+    ),
+  }));
+
 const saveChat = async (req, res) => {
   try {
     const { userId, chatId, title, messages } = req.body;
+    const sanitizedMessages = sanitizeMessages(messages);
     console.log("SAVE REQUEST");
     console.log("chatId:", chatId);
     console.log("title:", title);
@@ -117,14 +128,14 @@ const saveChat = async (req, res) => {
 
     if (chat) {
       chat.title = title;
-      chat.messages = messages;
+      chat.messages = sanitizedMessages;
 
       await chat.save();
     } else {
       chat = await Chat.create({
         userId,
         title,
-        messages,
+        messages: sanitizedMessages,
       });
     }
     // console.log("CHAT SAVED:", chat);

@@ -1,4 +1,9 @@
-export const sendMessageToAI = async (message, onChunk, images = []) => {
+export const sendMessageToAI = async (
+  message,
+  onChunk,
+  images = [],
+  onImageUrls,
+) => {
   const body =
     images.length > 0
       ? (() => {
@@ -18,6 +23,13 @@ export const sendMessageToAI = async (message, onChunk, images = []) => {
 
   if (!response.ok) {
     throw new Error((await response.text()) || "AI request failed");
+  }
+
+  const imageUrlsHeader = response.headers.get("X-Image-Urls");
+  const imageUrls = imageUrlsHeader ? JSON.parse(imageUrlsHeader) : [];
+
+  if (imageUrls.length > 0 && onImageUrls) {
+    onImageUrls(imageUrls);
   }
 
   const reader = response.body.getReader();
