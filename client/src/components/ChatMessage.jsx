@@ -1,10 +1,8 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Copy } from "lucide-react";
-// import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
-// import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-function ChatMessage({ sender, message, time }) {
+function ChatMessage({ sender, message, images = [], time }) {
   const isTypingMessage = message === "NeuralChat is typing...";
   const copyMessage = async () => {
     try {
@@ -34,43 +32,28 @@ function ChatMessage({ sender, message, time }) {
           </button>
         )}
         <div className="markdown-content">
+          {sender === "user" && images.length > 0 && (
+            <div className="message-images">
+              {images.map((image, index) => {
+                const imageUrl =
+                  typeof image === "string" ? image : image.preview;
+
+                return (
+                  <img
+                    key={imageUrl || index}
+                    src={imageUrl}
+                    alt={`Uploaded ${index + 1}`}
+                    className="message-image"
+                    loading="lazy"
+                  />
+                );
+              })}
+            </div>
+          )}
+
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
-              // code({ inline, className, children, ...props }) {
-              //   const match = /language-(\w+)/.exec(className || "");
-              //   const codeString = String(children).replace(/\n$/, "");
-
-              //   if (!inline && match) {
-              //     return (
-              //       <div className="code-block-wrapper">
-              //         <button
-              //           className="code-copy-btn"
-              //           onClick={() =>
-              //             navigator.clipboard.writeText(codeString)
-              //           }
-              //         >
-              //           Copy
-              //         </button>
-
-              //         <SyntaxHighlighter
-              //           style={oneDark}
-              //           language={match[1]}
-              //           {...props}
-              //         >
-              //           {codeString}
-              //         </SyntaxHighlighter>
-              //       </div>
-              //     );
-              //   }
-
-              //   return (
-              //     <code className={className} {...props}>
-              //       {children}
-              //     </code>
-              //   );
-              // },
-
               code({ className, children }) {
                 const match = /language-(\w+)/.exec(className || "");
                 const codeString = String(children).replace(/\n$/, "");

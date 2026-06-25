@@ -1,13 +1,24 @@
-export const sendMessageToAI = async (message, onChunk) => {
+export const sendMessageToAI = async (message, onChunk, images = []) => {
+  const body =
+    images.length > 0
+      ? (() => {
+          const formData = new FormData();
+          formData.append("message", message);
+          images.forEach((image) => formData.append("images", image));
+          return formData;
+        })()
+      : JSON.stringify({ message });
+
   const response = await fetch("http://localhost:5000/api/ai/chat", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      message,
-    }),
+    headers:
+      images.length > 0 ? undefined : { "Content-Type": "application/json" },
+    body,
   });
+
+  if (!response.ok) {
+    throw new Error((await response.text()) || "AI request failed");
+  }
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();

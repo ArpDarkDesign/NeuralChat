@@ -12,19 +12,21 @@ const chatSchema = new mongoose.Schema(
       type: String,
       default: "New Chat",
     },
-
     messages: [
       {
         sender: String,
         text: String,
         time: String,
-        
+        images: {
+          type: [String],
+          default: [],
+        },
       },
     ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("Chat", chatSchema);

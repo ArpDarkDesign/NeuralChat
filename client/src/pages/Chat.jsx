@@ -54,17 +54,20 @@ function Chat() {
     (chat) => chat.id === activeChatId || chat._id === activeChatId,
   );
 
-  const handleSend = async (text) => {
+  const handleSend = async (text, images = []) => {
     const message = text.trim();
+    const displayedMessage =
+      message ||
+      `Attached ${images.length} image${images.length === 1 ? "" : "s"}`;
     const currentChatId = activeChatId;
 
-    if (!message) return;
+    if (!message && images.length === 0) return false;
 
     if (
       newChatIdsRef.current.has(currentChatId) &&
       !firstUserMessagesRef.current.has(currentChatId)
     ) {
-      firstUserMessagesRef.current.set(currentChatId, message);
+      firstUserMessagesRef.current.set(currentChatId, displayedMessage);
     }
 
     setConversations((prev) =>
@@ -73,19 +76,21 @@ function Chat() {
 
         const updatedTitle =
           chat.title === "New Chat"
-            ? message.length > 25
-              ? message.slice(0, 25) + "..."
-              : message
+            ? displayedMessage.length > 25
+              ? displayedMessage.slice(0, 25) + "..."
+              : displayedMessage
             : chat.title;
 
         return {
           ...chat,
           title: updatedTitle,
+
           messages: [
             ...chat.messages,
             {
               sender: "user",
-              text: message,
+              text: displayedMessage,
+              images: images.map((file) => URL.createObjectURL(file)),
               time: currentTime(),
             },
           ],
@@ -115,25 +120,29 @@ function Chat() {
     );
 
     try {
-      const aiResponse = await sendMessageToAI(message, (streamedText) => {
-        setConversations((prev) =>
-          prev.map((chat) => {
-            if (!isMatchingChat(chat, currentChatId)) return chat;
+      const aiResponse = await sendMessageToAI(
+        message,
+        (streamedText) => {
+          setConversations((prev) =>
+            prev.map((chat) => {
+              if (!isMatchingChat(chat, currentChatId)) return chat;
 
-            return {
-              ...chat,
-              messages: chat.messages.map((msg) =>
-                msg.id === botMessageId
-                  ? {
-                      ...msg,
-                      text: streamedText,
-                    }
-                  : msg,
-              ),
-            };
-          }),
-        );
-      });
+              return {
+                ...chat,
+                messages: chat.messages.map((msg) =>
+                  msg.id === botMessageId
+                    ? {
+                        ...msg,
+                        text: streamedText,
+                      }
+                    : msg,
+                ),
+              };
+            }),
+          );
+        },
+        images,
+      );
 
       if (
         aiResponse.trim() &&
@@ -192,9 +201,13 @@ function Chat() {
           };
         }),
       );
+
+      setIsTyping(false);
+      return false;
     }
 
     setIsTyping(false);
+    return true;
   };
 
   const handleNewChat = () => {
@@ -373,6 +386,7 @@ function Chat() {
               key={msg.id || index}
               sender={msg.sender}
               message={msg.text}
+              images={msg.images}
               time={msg.time}
             />
           ))}

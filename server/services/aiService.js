@@ -4,7 +4,23 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-const getAIResponseStream = async (message) => {
+const getAIResponseStream = async (message, images = []) => {
+  const userContent =
+    images.length > 0
+      ? [
+          {
+            type: "text",
+            text: message || "Describe the attached images.",
+          },
+          ...images.map((image) => ({
+            type: "image_url",
+            image_url: {
+              url: `data:${image.mimetype};base64,${image.buffer.toString("base64")}`,
+            },
+          })),
+        ]
+      : message;
+
   const stream = await groq.chat.completions.create({
     messages: [
       {
@@ -24,10 +40,13 @@ Rules:
       },
       {
         role: "user",
-        content: message,
+        content: userContent,
       },
     ],
-    model: "llama-3.3-70b-versatile",
+    model:
+      images.length > 0
+        ? "meta-llama/llama-4-scout-17b-16e-instruct"
+        : "llama-3.3-70b-versatile",
     stream: true,
   });
 
