@@ -169,7 +169,7 @@ function Chat() {
       };
 
       try {
-        await sendMessageToAI(
+        const finalResponse = await sendMessageToAI(
           message,
           (streamedText) => {
             setConversations((prev) =>
@@ -227,6 +227,8 @@ function Chat() {
             );
           },
         );
+
+        finishStreamingUi(finalResponse);
       } catch (error) {
         console.error(error);
 
