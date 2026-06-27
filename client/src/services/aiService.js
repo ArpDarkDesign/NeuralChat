@@ -1,17 +1,28 @@
 const IMAGE_URLS_MARKER = "\x00NEURALCHAT_IMAGE_URLS:";
-const IMAGE_URLS_PATTERN = /\x00NEURALCHAT_IMAGE_URLS:\[[^\]]*\]/;
 
 const parseStreamContent = (fullResponse) => {
-  const match = fullResponse.match(/\x00NEURALCHAT_IMAGE_URLS:(\[[^\]]*\])/);
+  const markerIndex = fullResponse.indexOf(IMAGE_URLS_MARKER);
 
-  if (!match) {
+  if (markerIndex === -1) {
     return { displayText: fullResponse, imageUrls: null };
   }
 
-  const displayText = fullResponse.replace(IMAGE_URLS_PATTERN, "");
+  const jsonStart = markerIndex + IMAGE_URLS_MARKER.length;
+  const jsonEnd = fullResponse.indexOf("]", jsonStart);
+
+  if (jsonEnd === -1) {
+    return {
+      displayText: fullResponse.slice(0, markerIndex),
+      imageUrls: null,
+    };
+  }
+
+  const imageUrlsJson = fullResponse.slice(jsonStart, jsonEnd + 1);
+  const displayText =
+    fullResponse.slice(0, markerIndex) + fullResponse.slice(jsonEnd + 1);
 
   try {
-    const imageUrls = JSON.parse(match[1]);
+    const imageUrls = JSON.parse(imageUrlsJson);
     return { displayText, imageUrls };
   } catch {
     return { displayText, imageUrls: null };

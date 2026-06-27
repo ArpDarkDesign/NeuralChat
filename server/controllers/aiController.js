@@ -19,6 +19,9 @@ const chatWithAI = async (req, res) => {
       });
     }
 
+    res.setHeader("Content-Type", "text/plain");
+    res.setHeader("Transfer-Encoding", "chunked");
+
     const uploadPromise =
       images.length > 0
         ? uploadImages(images).then((imageUrls) => {
@@ -30,9 +33,6 @@ const chatWithAI = async (req, res) => {
           })
         : null;
     const stream = await getAIResponseStream(message, images);
-
-    res.setHeader("Content-Type", "text/plain");
-    res.setHeader("Transfer-Encoding", "chunked");
 
     for await (const chunk of stream) {
       const content = chunk.choices?.[0]?.delta?.content || "";

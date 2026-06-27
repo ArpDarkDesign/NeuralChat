@@ -3,11 +3,14 @@ import Navbar from "../components/Navbar";
 import ChatInput from "../components/ChatInput";
 import ChatMessage from "../components/ChatMessage";
 import "./Chat.css";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import TypingIndicator from "../components/TypingIndicator";
 import { generateChatTitle, sendMessageToAI } from "../services/aiService";
 import { getChats, saveChat, deleteChat } from "../services/chatService";
 import { getStoredChatThemeId } from "../theme/chatThemes";
+
+const TEMP_ID_PREFIX = "temp-";
+const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 
 const currentTime = () =>
   new Date().toLocaleTimeString([], {
@@ -15,40 +18,175 @@ const currentTime = () =>
     minute: "2-digit",
   });
 
+const createWelcomeMessages = (user) => [
+  {
+    sender: "system",
+    text: `Good Evening, ${user?.name || "User"} 👋`,
+  },
+  {
+    sender: "system",
+    text: "What would you like to build today?",
+  },
+];
+
+const createLocalId = () =>
+  `${TEMP_ID_PREFIX}${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+const isPersistedId = (id) =>
+  typeof id === "string" && OBJECT_ID_PATTERN.test(id);
+
+const isTemporaryId = (id) =>
+  typeof id === "string" && id.startsWith(TEMP_ID_PREFIX);
+
+const getChatKey = (chat) =>
+  chat?.localId || chat?.clientTempId || chat?._id || chat?.id;
+
 const isMatchingChat = (chat, chatId) =>
-  chat._id === chatId || chat.id === chatId || chat.clientTempId === chatId;
+  getChatKey(chat) === chatId ||
+  chat?._id === chatId ||
+  chat?.id === chatId ||
+  chat?.clientTempId === chatId;
+
+const normalizeChat = (chat) => ({
+  ...chat,
+  localId: getChatKey(chat) || createLocalId(),
+  messages: Array.isArray(chat.messages) ? chat.messages : [],
+});
+
+const hasUserMessages = (chat) =>
+  chat.messages.some((msg) => msg.sender === "user");
+
+const hasLocalImageUrls = (chat) =>
+  chat.messages.some((msg) =>
+    (msg.images || []).some(
+      (image) => typeof image === "string" && image.startsWith("blob:"),
+    ),
+  );
+
+const signatureForSnapshot = ({ title, messages }) =>
+  JSON.stringify({ title, messages });
 
 function Chat() {
   const messagesEndRef = useRef(null);
   const [chatTheme, setChatTheme] = useState(getStoredChatThemeId);
 
   const [currentUser] = useState(JSON.parse(localStorage.getItem("user")));
+  const welcomeMessages = createWelcomeMessages(currentUser);
 
-  const welcomeMessages = [
-    {
-      sender: "system",
-      text: `Good Evening, ${currentUser?.name || "User"} 👋`,
-    },
-    {
-      sender: "system",
-      text: "What would you like to build today?",
-    },
-  ];
+  const createBlankChat = () =>
+    normalizeChat({
+      _id: createLocalId(),
+      title: "New Chat",
+      messages: welcomeMessages,
+    });
 
-  const initialChat = {
-    id: 1,
-    title: "New Chat",
-    messages: welcomeMessages,
-  };
+  const [conversations, setConversations] = useState(() => {
+    const initialChat = createBlankChat();
+    return [initialChat];
+  });
+  const [activeChatId, setActiveChatId] = useState(() =>
+    getChatKey(conversations[0]),
+  );
+  const [isTyping, setIsTyping] = useState(false);
 
-  const [conversations, setConversations] = useState([initialChat]);
-  const [activeChatId, setActiveChatId] = useState(initialChat.id);
-  const newChatIdsRef = useRef(new Set([initialChat.id]));
+  const newChatIdsRef = useRef(new Set([activeChatId]));
   const firstUserMessagesRef = useRef(new Map());
   const titleAttemptedChatIdsRef = useRef(new Set());
   const manuallyRenamedChatIdsRef = useRef(new Set());
+  const saveRegistryRef = useRef(new Map());
 
-  const [isTyping, setIsTyping] = useState(false);
+  const activeConversation = conversations.find((chat) =>
+    isMatchingChat(chat, activeChatId),
+  );
+
+  const ensureSaveState = (chatKey) => {
+    if (!saveRegistryRef.current.has(chatKey)) {
+      saveRegistryRef.current.set(chatKey, {
+        serverId: null,
+        timer: null,
+        inFlight: false,
+        queuedSnapshot: null,
+        lastScheduledSignature: null,
+        lastSavedSignature: null,
+      });
+    }
+
+    return saveRegistryRef.current.get(chatKey);
+  };
+
+  const buildSaveSnapshot = (chat) => {
+    const chatKey = getChatKey(chat);
+    const saveState = ensureSaveState(chatKey);
+    const persistedId = isPersistedId(chat._id) ? chat._id : saveState.serverId;
+    const clientTempId =
+      chat.clientTempId || (isTemporaryId(chat._id) ? chat._id : chatKey);
+
+    return {
+      localId: chatKey,
+      chatId: persistedId || null,
+      clientTempId,
+      userId: currentUser.id,
+      title: chat.title,
+      messages: chat.messages,
+    };
+  };
+
+  const persistSnapshot = async (chatKey, snapshot) => {
+    
+    const saveState = ensureSaveState(chatKey);
+
+    if (saveState.inFlight) {
+      saveState.queuedSnapshot = snapshot;
+      return;
+    }
+
+    saveState.inFlight = true;
+let snapshotToSave = snapshot;
+
+// console.log("persistSnapshot START");
+// console.log(snapshotToSave);
+
+    try {
+      while (snapshotToSave) {
+        saveState.queuedSnapshot = null;
+// console.log("About to call saveChat");
+// console.log(snapshotToSave);
+// console.log(saveState);
+        const savedChat = await saveChat({
+          ...snapshotToSave,
+          chatId: saveState.serverId || snapshotToSave.chatId || undefined,
+        });
+const currentSnapshot = snapshotToSave;
+
+        saveState.serverId = savedChat._id;
+        saveState.lastSavedSignature = signatureForSnapshot(currentSnapshot);
+        setConversations((prev) =>
+          prev.map((chat) =>
+            getChatKey(chat) === chatKey
+              ? {
+                  ...chat,
+                  _id: savedChat._id,
+                  clientTempId: currentSnapshot.clientTempId,
+                  updatedAt: savedChat.updatedAt,
+                }
+              : chat,
+          ),
+        );
+
+        snapshotToSave = saveState.queuedSnapshot
+          ? {
+              ...saveState.queuedSnapshot,
+              chatId: savedChat._id,
+            }
+          : null;
+      }
+    } catch (error) {
+      saveState.lastScheduledSignature = null;
+      console.error("Chat autosave failed:", error);
+    } finally {
+      saveState.inFlight = false;
+    }
+  };
 
   const generateTitleForChat = async (chatId, aiResponse) => {
     if (!aiResponse.trim()) return;
@@ -68,8 +206,10 @@ function Chat() {
           prev.map((chat) => {
             if (!isMatchingChat(chat, chatId)) return chat;
 
+            const chatKey = getChatKey(chat);
             const wasManuallyRenamed =
               manuallyRenamedChatIdsRef.current.has(chatId) ||
+              manuallyRenamedChatIdsRef.current.has(chatKey) ||
               manuallyRenamedChatIdsRef.current.has(chat._id) ||
               manuallyRenamedChatIdsRef.current.has(chat.clientTempId);
 
@@ -78,7 +218,6 @@ function Chat() {
             return {
               ...chat,
               title: generatedTitle,
-              messages: [...chat.messages],
             };
           }),
         );
@@ -87,10 +226,6 @@ function Chat() {
       console.error("Title generation failed:", error);
     }
   };
-
-  const activeConversation = conversations.find(
-    (chat) => chat.id === activeChatId || chat._id === activeChatId,
-  );
 
   const handleSend = async (text, images = []) => {
     const message = text.trim();
@@ -109,6 +244,7 @@ function Chat() {
     }
 
     const blobUrls = images.map((file) => URL.createObjectURL(file));
+    const botMessageId = `${currentChatId}-${Date.now()}-bot`;
 
     setConversations((prev) =>
       prev.map((chat) => {
@@ -124,7 +260,6 @@ function Chat() {
         return {
           ...chat,
           title: updatedTitle,
-
           messages: [
             ...chat.messages,
             {
@@ -133,21 +268,6 @@ function Chat() {
               images: blobUrls,
               time: currentTime(),
             },
-          ],
-        };
-      }),
-    );
-
-    const botMessageId = Date.now();
-
-    setConversations((prev) =>
-      prev.map((chat) => {
-        if (!isMatchingChat(chat, currentChatId)) return chat;
-
-        return {
-          ...chat,
-          messages: [
-            ...chat.messages,
             {
               id: botMessageId,
               sender: "bot",
@@ -161,146 +281,163 @@ function Chat() {
 
     setIsTyping(true);
 
-    let typingHideTimer = null;
+    try {
+      const finalResponse = await sendMessageToAI(
+        message,
+        (streamedText) => {
+          setConversations((prev) =>
+            prev.map((chat) => {
+              if (!isMatchingChat(chat, currentChatId)) return chat;
 
-    (async () => {
-      const finishStreamingUi = (aiResponse) => {
-        generateTitleForChat(currentChatId, aiResponse);
-      };
+              return {
+                ...chat,
+                messages: chat.messages.map((msg) =>
+                  msg.id === botMessageId
+                    ? {
+                        ...msg,
+                        text: streamedText,
+                      }
+                    : msg,
+                ),
+              };
+            }),
+          );
 
-      try {
-        const finalResponse = await sendMessageToAI(
-          message,
-          (streamedText) => {
-            setConversations((prev) =>
-              prev.map((chat) => {
-                if (!isMatchingChat(chat, currentChatId)) return chat;
+          if (streamedText.length > 0) {
+            setIsTyping(false);
+          }
+        },
+        images,
+        (cloudinaryUrls) => {
+          blobUrls.forEach((url) => URL.revokeObjectURL(url));
 
-                return {
-                  ...chat,
-                  messages: chat.messages.map((msg) =>
-                    msg.id === botMessageId
-                      ? {
-                          ...msg,
-                          text: streamedText,
-                        }
-                      : msg,
-                  ),
-                };
-              }),
-            );
+          setConversations((prev) =>
+            prev.map((chat) => {
+              if (!isMatchingChat(chat, currentChatId)) return chat;
 
-            if (streamedText.length > 0) {
-              setIsTyping(false);
-            }
+              const messages = [...chat.messages];
 
-            if (typingHideTimer) clearTimeout(typingHideTimer);
-            typingHideTimer = setTimeout(() => {
-              finishStreamingUi(streamedText);
-            }, 400);
-          },
-          images,
-          (cloudinaryUrls) => {
-            blobUrls.forEach((url) => URL.revokeObjectURL(url));
-
-            setConversations((prev) =>
-              prev.map((chat) => {
-                if (!isMatchingChat(chat, currentChatId)) return chat;
-
-                const messages = [...chat.messages];
-
-                for (let i = messages.length - 1; i >= 0; i--) {
-                  if (messages[i].sender === "user") {
-                    messages[i] = {
-                      ...messages[i],
-                      images: cloudinaryUrls,
-                    };
-                    break;
-                  }
+              for (let i = messages.length - 1; i >= 0; i--) {
+                if (messages[i].sender === "user") {
+                  messages[i] = {
+                    ...messages[i],
+                    images: cloudinaryUrls,
+                  };
+                  break;
                 }
+              }
 
-                return {
-                  ...chat,
-                  messages,
-                };
-              }),
-            );
-          },
-        );
+              return {
+                ...chat,
+                messages,
+              };
+            }),
+          );
+        },
+      );
 
-        finishStreamingUi(finalResponse);
-      } catch (error) {
-        console.error(error);
+      generateTitleForChat(currentChatId, finalResponse);
+      return true;
+    } catch (error) {
+      console.error(error);
+      blobUrls.forEach((url) => URL.revokeObjectURL(url));
 
-        setConversations((prev) =>
-          prev.map((chat) => {
-            if (!isMatchingChat(chat, currentChatId)) return chat;
+      setConversations((prev) =>
+        prev.map((chat) => {
+          if (!isMatchingChat(chat, currentChatId)) return chat;
 
-            return {
-              ...chat,
-              messages: [
-                ...chat.messages,
-                {
-                  sender: "bot",
-                  text: "Sorry, something went wrong.",
-                  time: currentTime(),
-                },
-              ],
-            };
-          }),
-        );
-      } finally {
-        if (typingHideTimer) clearTimeout(typingHideTimer);
-        setIsTyping(false);
-      }
-    })();
+          return {
+            ...chat,
+            messages: chat.messages.map((msg) =>
+              msg.id === botMessageId
+                ? {
+                    ...msg,
+                    text: "Sorry, something went wrong.",
+                  }
+                : msg,
+            ),
+          };
+        }),
+      );
 
-    return true;
+      return false;
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleNewChat = () => {
-    const newChat = {
-      _id: `temp-${Date.now()}`,
-      title: "New Chat",
-      messages: welcomeMessages,
-    };
-    newChatIdsRef.current.add(newChat._id);
-    setConversations((prev) => [newChat, ...prev]);
+    const reusableEmptyChat = conversations.find(
+      (chat) => !hasUserMessages(chat) && chat.title === "New Chat",
+    );
 
-    setActiveChatId(newChat._id);
+    if (reusableEmptyChat) {
+      setActiveChatId(getChatKey(reusableEmptyChat));
+      return;
+    }
+
+    const newChat = createBlankChat();
+    const newChatId = getChatKey(newChat);
+
+    newChatIdsRef.current.add(newChatId);
+    setConversations((prev) => [newChat, ...prev]);
+    setActiveChatId(newChatId);
   };
 
   const handleDeleteChat = async (chatId) => {
     if (conversations.length === 1) return;
 
-    try {
-      await deleteChat(chatId);
-    } catch (error) {
-      console.error(error);
+    const chatToDelete = conversations.find((chat) =>
+      isMatchingChat(chat, chatId),
+    );
+    const chatKey = getChatKey(chatToDelete);
+    const saveState = saveRegistryRef.current.get(chatKey);
+    const persistedId = isPersistedId(chatToDelete?._id)
+      ? chatToDelete._id
+      : saveState?.serverId;
+
+    if (saveState?.timer) {
+      clearTimeout(saveState.timer);
     }
 
-    const updatedChats = conversations.filter(
-      (chat) => (chat._id || chat.id) !== chatId,
-    );
+    saveRegistryRef.current.delete(chatKey);
 
-    if (activeChatId === chatId) {
-      const nextChat = updatedChats[0];
-
-      if (nextChat) {
-        setActiveChatId(nextChat._id || nextChat.id);
+    if (persistedId) {
+      try {
+        await deleteChat(persistedId);
+      } catch (error) {
+        console.error(error);
       }
     }
 
-    setConversations(updatedChats);
+    setConversations((prev) => {
+      const updatedChats = prev.filter((chat) => !isMatchingChat(chat, chatId));
+
+      if (isMatchingChat(chatToDelete, activeChatId)) {
+        const nextChat = updatedChats[0];
+
+        if (nextChat) {
+          setActiveChatId(getChatKey(nextChat));
+        }
+      }
+
+      return updatedChats;
+    });
   };
+
   const handleRenameChat = (chatId, newTitle) => {
-    if (!newTitle.trim()) return;
+    const trimmedTitle = newTitle.trim();
+
+    if (!trimmedTitle) return;
 
     setConversations((prev) =>
       prev.map((chat) => {
-        if ((chat._id || chat.id) !== chatId) return chat;
+        if (!isMatchingChat(chat, chatId)) return chat;
+
+        const chatKey = getChatKey(chat);
 
         manuallyRenamedChatIdsRef.current.add(chatId);
+        manuallyRenamedChatIdsRef.current.add(chatKey);
 
         if (chat.clientTempId) {
           manuallyRenamedChatIdsRef.current.add(chat.clientTempId);
@@ -308,7 +445,7 @@ function Chat() {
 
         return {
           ...chat,
-          title: newTitle,
+          title: trimmedTitle,
         };
       }),
     );
@@ -356,11 +493,11 @@ function Chat() {
 
       try {
         const chats = await getChats(currentUser.id);
-        // console.log("LOADED CHATS:", chats);
 
         if (chats.length > 0) {
-          setConversations(chats);
-          setActiveChatId(chats[0]._id);
+          const normalizedChats = chats.map(normalizeChat);
+          setConversations(normalizedChats);
+          setActiveChatId(getChatKey(normalizedChats[0]));
         }
       } catch (error) {
         console.error(error);
@@ -368,52 +505,52 @@ function Chat() {
     };
 
     loadChats();
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
-    if (!activeConversation) return;
     if (!currentUser) return;
-    if (!activeConversation.messages.some((msg) => msg.sender === "user")) {
-      return;
-    }
 
-    const timer = setTimeout(() => {
-      saveChat({
-        chatId: activeConversation._id?.startsWith?.("temp-")
-          ? null
-          : activeConversation._id,
-        userId: currentUser.id,
-        title: activeConversation.title,
-        messages: activeConversation.messages,
-      })
-        .then((savedChat) => {
-          if (
-            activeConversation._id &&
-            activeConversation._id.startsWith("temp-")
-          ) {
-            setConversations((prev) =>
-              prev.map((chat) =>
-                chat._id === activeConversation._id
-                  ? {
-                      ...chat,
-                      _id: savedChat._id,
-                      clientTempId: activeConversation._id,
-                    }
-                  : chat,
-              ),
-            );
+    conversations.forEach((chat) => {
+      if (!hasUserMessages(chat)) return;
+      if (hasLocalImageUrls(chat)) return;
 
-            setActiveChatId(savedChat._id);
-          }
-        })
+      const chatKey = getChatKey(chat);
+      const saveState = ensureSaveState(chatKey);
+      const snapshot = buildSaveSnapshot(chat);
+      const signature = signatureForSnapshot(snapshot);
 
-        .catch(console.error);
-    }, 500);
+      if (
+        signature === saveState.lastSavedSignature ||
+        signature === saveState.lastScheduledSignature
+      ) {
+        return;
+      }
 
-    return () => clearTimeout(timer);
+      saveState.lastScheduledSignature = signature;
 
+      if (saveState.timer) {
+        clearTimeout(saveState.timer);
+      }
+
+      saveState.timer = setTimeout(() => {
+        persistSnapshot(chatKey, snapshot);
+      }, 500);
+    });
+    // saveRegistryRef owns save sequencing, so these helpers must read the
+    // current render snapshot without rearming timers for function identity.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeConversation?.messages]);
+  }, [conversations, currentUser]);
+
+  useEffect(
+    () => () => {
+      saveRegistryRef.current.forEach((saveState) => {
+        if (saveState.timer) {
+          clearTimeout(saveState.timer);
+        }
+      });
+    },
+    [],
+  );
 
   return (
     <div className={`chat-page chat-theme-${chatTheme}`}>

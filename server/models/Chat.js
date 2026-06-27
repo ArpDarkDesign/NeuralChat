@@ -8,6 +8,11 @@ const chatSchema = new mongoose.Schema(
       required: true,
     },
 
+    clientTempId: {
+      type: String,
+      default: null,
+    },
+
     title: {
       type: String,
       default: "New Chat",
@@ -26,6 +31,18 @@ const chatSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+  },
+);
+
+chatSchema.index(
+  { userId: 1, clientTempId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      clientTempId: {
+        $type: "string",
+      },
+    },
   },
 );
 

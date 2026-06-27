@@ -112,37 +112,83 @@ const sanitizeMessages = (messages = []) =>
     ),
   }));
 
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
 const saveChat = async (req, res) => {
   try {
-    const { userId, chatId, title, messages } = req.body;
+    const { userId, chatId, clientTempId, title, messages } = req.body;
+
+    if (!userId || !isValidObjectId(userId)) {
+      return res.status(400).json({
+        message: "A valid userId is required.",
+      });
+    }
+
     const sanitizedMessages = sanitizeMessages(messages);
-    console.log("SAVE REQUEST");
-    console.log("chatId:", chatId);
-    console.log("title:", title);
+    const safeTitle =
+      typeof title === "string" && title.trim() ? title.trim() : "New Chat";
+    const safeClientTempId =
+      typeof clientTempId === "string" && clientTempId.trim()
+        ? clientTempId.trim()
+        : null;
 
     let chat = null;
 
-    if (chatId && mongoose.Types.ObjectId.isValid(chatId)) {
-      chat = await Chat.findById(chatId);
+    if (chatId && isValidObjectId(chatId)) {
+      chat = await Chat.findOne({
+        _id: chatId,
+        userId,
+      });
+    }
+
+    if (!chat && safeClientTempId) {
+      chat = await Chat.findOne({
+        userId,
+        clientTempId: safeClientTempId,
+      });
     }
 
     if (chat) {
-      chat.title = title;
+      chat.title = safeTitle;
       chat.messages = sanitizedMessages;
+
+      if (safeClientTempId && !chat.clientTempId) {
+        chat.clientTempId = safeClientTempId;
+      }
 
       await chat.save();
     } else {
       chat = await Chat.create({
         userId,
-        title,
+        clientTempId: safeClientTempId,
+        title: safeTitle,
         messages: sanitizedMessages,
       });
     }
-    // console.log("CHAT SAVED:", chat);
+
     res.json(chat);
   } catch (error) {
     console.error("SAVE CHAT ERROR:");
     console.error(error);
+
+    if (error.code === 11000 && req.body.clientTempId) {
+      const chat = await Chat.findOne({
+        userId: req.body.userId,
+        clientTempId: req.body.clientTempId,
+      });
+
+      if (chat) {
+        chat.title =
+          typeof req.body.title === "string" && req.body.title.trim()
+            ? req.body.title.trim()
+            : "New Chat";
+        chat.messages = sanitizeMessages(req.body.messages);
+
+        await chat.save();
+
+        return res.json(chat);
+      }
+    }
 
     res.status(500).json({
       message: error.message,
@@ -152,7 +198,9 @@ const saveChat = async (req, res) => {
 
 const deleteChat = async (req, res) => {
   try {
-    await Chat.findByIdAndDelete(req.params.id);
+    if (isValidObjectId(req.params.id)) {
+      await Chat.findByIdAndDelete(req.params.id);
+    }
 
     res.json({
       success: true,

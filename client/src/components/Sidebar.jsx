@@ -42,7 +42,7 @@ function Sidebar({
 
       <div className="chat-history">
         {filteredConversations.map((chat) => {
-          const chatId = chat._id || chat.id;
+          const chatId = chat.localId || chat.clientTempId || chat._id || chat.id;
 
           return (
             <div

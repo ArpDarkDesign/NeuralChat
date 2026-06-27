@@ -9,8 +9,8 @@ const {
   getUserStats,
 } = require("../controllers/chatController");
 
-router.get("/:userId", getChats);
 router.get("/stats/:userId", getUserStats);
+router.get("/:userId", getChats);
 router.post("/", saveChat);
 
 router.delete("/:id", deleteChat);
