@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 
 function ChatInput({ onSend }) {
+  const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
+
   const [text, setText] = useState("");
   const [images, setImages] = useState([]);
   const [isSending, setIsSending] = useState(false);
   const fileInputRef = useRef(null);
   const imagesRef = useRef(images);
+  const attachmentMenuRef = useRef(null);
 
   useEffect(() => {
     imagesRef.current = images;
@@ -17,6 +20,21 @@ function ChatInput({ onSend }) {
     },
     [],
   );
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        attachmentMenuRef.current &&
+        !attachmentMenuRef.current.contains(event.target)
+      ) {
+        setShowAttachmentMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleImageSelect = (event) => {
     const selectedFiles = Array.from(event.target.files);
@@ -88,15 +106,66 @@ function ChatInput({ onSend }) {
             onChange={handleImageSelect}
           />
 
-          <button
-            className="image-upload-btn"
-            type="button"
-            aria-label="Add images"
-            disabled={isSending || images.length >= 5}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            +
-          </button>
+          <div className="attachment-menu-wrapper" ref={attachmentMenuRef}>
+            <button
+              className="image-upload-btn"
+              type="button"
+              disabled={isSending}
+              onClick={() => setShowAttachmentMenu((prev) => !prev)}
+            >
+              +
+            </button>
+
+            {showAttachmentMenu && (
+              <div className="attachment-menu">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAttachmentMenu(false);
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  <div className="attachment-title">🖼️ Photos</div>
+                  <div className="attachment-subtitle">Upload images</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAttachmentMenu(false);
+                    alert("PDF support coming soon.");
+                  }}
+                >
+                  <div className="attachment-title">📄 PDF</div>
+                  <div className="attachment-subtitle">
+                    Analyze PDF documents
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAttachmentMenu(false);
+                    alert("File support coming soon.");
+                  }}
+                >
+                  <div className="attachment-title">📁 Files</div>
+                  <div className="attachment-subtitle">Upload any file</div>
+                </button>
+
+                {/* <button
+                  type="button"
+                  onClick={() => {
+                    setShowAttachmentMenu(false);
+                    alert("Image Generator coming soon.");
+                  }}
+                >
+                  <div className="attachment-title">🎨 Image Generator</div>
+                  <div className="attachment-subtitle">Create AI artwork</div>
+                </button> */}
+              </div>
+            )}
+          </div>
 
           <input
             onKeyDown={(e) => {

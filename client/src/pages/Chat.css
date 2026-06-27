@@ -732,8 +732,6 @@ body[data-chat-theme="solar-nexus"] .custom-cursor {
   --chat-cursor: #fbbf24;
 }
 
-
-
 .message-images {
   display: flex;
   gap: 10px;
@@ -753,8 +751,9 @@ body[data-chat-theme="solar-nexus"] .custom-cursor {
 
   cursor: pointer;
 
-  transition: transform 0.2s ease,
-              box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .message-image:hover {
   transform: scale(1.03);
@@ -763,4 +762,66 @@ body[data-chat-theme="solar-nexus"] .custom-cursor {
 }
 .message-images img {
   display: block;
+}
+
+.attachment-menu-wrapper {
+  position: relative;
+}
+
+.attachment-menu {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+
+  width: 190px;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 8px;
+
+  border-radius: 18px;
+
+  background: #17152d;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45);
+
+  z-index: 100;
+}
+
+.attachment-menu button {
+  background: transparent;
+
+  border: none;
+
+  color: white;
+
+  text-align: left;
+
+  padding: 12px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.attachment-menu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(3px);
+  transition: 0.2s ease;
+}
+.attachment-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+}
+
+.attachment-subtitle {
+  margin-top: 3px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
 }
