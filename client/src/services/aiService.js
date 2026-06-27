@@ -31,6 +31,7 @@ const parseStreamContent = (fullResponse) => {
 
 export const sendMessageToAI = async (
   message,
+  history,
   onChunk,
   images = [],
   onImageUrls,
@@ -43,7 +44,7 @@ export const sendMessageToAI = async (
           images.forEach((image) => formData.append("images", image));
           return formData;
         })()
-      : JSON.stringify({ message });
+      : JSON.stringify({ message, history });
 
   const response = await fetch("http://localhost:5000/api/ai/chat", {
     method: "POST",
@@ -105,7 +106,8 @@ User: ${userMessage}
 Assistant: ${aiResponse}
 `;
 
-  const response = await sendMessageToAI(prompt, () => {});
+  const response = await sendMessageToAI(prompt, [], () => {}, []);
+
   const cleanedTitle = response
     .trim()
     .split("\n")[0]

@@ -5,7 +5,22 @@ const IMAGE_URLS_MARKER = "\x00NEURALCHAT_IMAGE_URLS:";
 
 const chatWithAI = async (req, res) => {
   try {
-    const { message } = req.body;
+    let { message, history = [] } = req.body;
+    console.log("========== HISTORY RECEIVED ==========");
+    console.log("History Length:", history.length);
+    console.log(history);
+    console.log("======================================");
+
+    if (typeof history === "string") {
+      try {
+        history = JSON.parse(history);
+      } catch {
+        history = [];
+      }
+    }
+
+    history = Array.isArray(history) ? history : [];
+
     const images = req.files || [];
     const allowedImageTypes = new Set([
       "image/png",
@@ -32,7 +47,7 @@ const chatWithAI = async (req, res) => {
             return imageUrls;
           })
         : null;
-    const stream = await getAIResponseStream(message, images);
+    const stream = await getAIResponseStream(message, history, images);
 
     for await (const chunk of stream) {
       const content = chunk.choices?.[0]?.delta?.content || "";

@@ -132,7 +132,6 @@ function Chat() {
   };
 
   const persistSnapshot = async (chatKey, snapshot) => {
-    
     const saveState = ensureSaveState(chatKey);
 
     if (saveState.inFlight) {
@@ -141,22 +140,17 @@ function Chat() {
     }
 
     saveState.inFlight = true;
-let snapshotToSave = snapshot;
-
-// console.log("persistSnapshot START");
-// console.log(snapshotToSave);
+    let snapshotToSave = snapshot;
 
     try {
       while (snapshotToSave) {
         saveState.queuedSnapshot = null;
-// console.log("About to call saveChat");
-// console.log(snapshotToSave);
-// console.log(saveState);
+
         const savedChat = await saveChat({
           ...snapshotToSave,
           chatId: saveState.serverId || snapshotToSave.chatId || undefined,
         });
-const currentSnapshot = snapshotToSave;
+        const currentSnapshot = snapshotToSave;
 
         saveState.serverId = savedChat._id;
         saveState.lastSavedSignature = signatureForSnapshot(currentSnapshot);
@@ -282,8 +276,22 @@ const currentSnapshot = snapshotToSave;
     setIsTyping(true);
 
     try {
+      const history =
+        activeConversation?.messages
+          ?.filter(
+            (msg) =>
+              (msg.sender === "user" || msg.sender === "bot") &&
+              msg.text?.trim(),
+          )
+          .map((msg) => ({
+            sender: msg.sender,
+            text: msg.text,
+            images: msg.images || [],
+          })) || [];
+
       const finalResponse = await sendMessageToAI(
         message,
+        history,
         (streamedText) => {
           setConversations((prev) =>
             prev.map((chat) => {
