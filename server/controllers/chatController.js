@@ -107,6 +107,12 @@ const sanitizeMessages = (messages = []) =>
     sender: msg.sender,
     text: msg.text,
     time: msg.time,
+
+    image:
+      typeof msg.image === "string" && /^https?:\/\//.test(msg.image)
+        ? msg.image
+        : null,
+
     images: (msg.images || []).filter(
       (url) => typeof url === "string" && /^https?:\/\//.test(url),
     ),

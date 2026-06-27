@@ -14,22 +14,14 @@ export const getUserStats = async (userId) => {
   return response.data;
 };
 
-
 export const saveChat = async (chat) => {
   console.log("saveChat() called");
-  console.log(chat);
+  console.log(JSON.stringify(chat, null, 2));
 
   const response = await axios.post(API, chat);
 
   return response.data;
 };
-
-
-// export const saveChat = async (chat) => {
-//   const response = await axios.post(API, chat);
-
-//   return response.data;
-// };
 
 export const deleteChat = async (chatId) => {
   await axios.delete(`${API}/${chatId}`);

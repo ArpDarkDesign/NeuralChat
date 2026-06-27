@@ -22,6 +22,10 @@ const chatSchema = new mongoose.Schema(
         sender: String,
         text: String,
         time: String,
+        image: {
+          type: String,
+          default: null,
+        },
         images: {
           type: [String],
           default: [],

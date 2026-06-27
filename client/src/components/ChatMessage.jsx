@@ -2,7 +2,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Copy } from "lucide-react";
 
-function ChatMessage({ sender, message, images = [], time }) {
+function ChatMessage({ sender, message, images = [], image, time }) {
   const isTypingMessage = message === "NeuralChat is typing...";
   const copyMessage = async () => {
     try {
@@ -48,6 +48,19 @@ function ChatMessage({ sender, message, images = [], time }) {
                   />
                 );
               })}
+            </div>
+          )}
+
+          {sender === "bot" && image && (
+            <div className="generated-image-container">
+              <img
+                src={image}
+                alt="AI Generated"
+                className="generated-image"
+                loading="lazy"
+              />
+
+              <div className="generated-image-caption">AI Generated Image</div>
             </div>
           )}
 

@@ -194,7 +194,6 @@ function Chat() {
         firstUserMessagesRef.current.get(chatId),
         aiResponse,
       );
-
       if (generatedTitle) {
         setConversations((prev) =>
           prev.map((chat) => {
@@ -344,7 +343,31 @@ function Chat() {
         },
       );
 
-      generateTitleForChat(currentChatId, finalResponse);
+      if (typeof finalResponse === "object" && finalResponse.type === "image") {
+        setConversations((prev) =>
+          prev.map((chat) => {
+            if (!isMatchingChat(chat, currentChatId)) return chat;
+
+            return {
+              ...chat,
+              messages: chat.messages.map((msg) =>
+                msg.id === botMessageId
+                  ? {
+                      ...msg,
+                      text: "AI Generated Image",
+                      image: finalResponse.imageUrl,
+                    }
+                  : msg,
+              ),
+            };
+          }),
+        );
+
+        return true;
+      }
+
+      generateTitleForChat(currentChatId, "AI Generated Image");
+
       return true;
     } catch (error) {
       console.error(error);
@@ -519,6 +542,7 @@ function Chat() {
     if (!currentUser) return;
 
     conversations.forEach((chat) => {
+      console.log("Autosave check:", chat.messages[chat.messages.length - 1]);
       if (!hasUserMessages(chat)) return;
       if (hasLocalImageUrls(chat)) return;
 
@@ -581,6 +605,7 @@ function Chat() {
               sender={msg.sender}
               message={msg.text}
               images={msg.images}
+              image={msg.image}
               time={msg.time}
             />
           ))}

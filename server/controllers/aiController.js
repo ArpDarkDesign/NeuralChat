@@ -1,15 +1,35 @@
 const { getAIResponseStream } = require("../services/aiService");
 const { uploadImages } = require("../utils/cloudinary");
 
+const { generateImage } = require("../services/imageService");
+
 const IMAGE_URLS_MARKER = "\x00NEURALCHAT_IMAGE_URLS:";
+
+const isImageRequest = (message = "") => {
+  const text = message.toLowerCase();
+
+  if (
+    text.includes("chat title") ||
+    text.includes("conversation below") ||
+    text.includes("return only the title") ||
+    text.includes("assistant:")
+  ) {
+    return false;
+  }
+
+  return (
+    /(generate|create|draw|paint|render|design|illustrate|make)/.test(text) &&
+    /(image|picture|photo|art|illustration|logo|icon|wallpaper|portrait|avatar)/.test(
+      text,
+    )
+  );
+};
 
 const chatWithAI = async (req, res) => {
   try {
     let { message, history = [] } = req.body;
-    console.log("========== HISTORY RECEIVED ==========");
-    console.log("History Length:", history.length);
-    console.log(history);
-    console.log("======================================");
+
+    const wantsImage = isImageRequest(message);
 
     if (typeof history === "string") {
       try {
@@ -27,10 +47,18 @@ const chatWithAI = async (req, res) => {
       "image/jpeg",
       "image/webp",
     ]);
-
     if (images.some((image) => !allowedImageTypes.has(image.mimetype))) {
       return res.status(400).json({
         message: "Only PNG, JPG, JPEG, and WebP images are supported.",
+      });
+    }
+
+    if (wantsImage) {
+      const imageUrl = await generateImage(message);
+
+      return res.json({
+        type: "image",
+        imageUrl,
       });
     }
 
@@ -47,6 +75,7 @@ const chatWithAI = async (req, res) => {
             return imageUrls;
           })
         : null;
+
     const stream = await getAIResponseStream(message, history, images);
 
     for await (const chunk of stream) {

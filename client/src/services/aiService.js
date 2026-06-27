@@ -81,6 +81,17 @@ export const sendMessageToAI = async (
   }
 
   fullResponse += decoder.decode();
+
+  try {
+    const parsed = JSON.parse(fullResponse);
+
+    if (parsed.type === "image") {
+      return parsed;
+    }
+  } catch {
+    // not an image response
+  }
+
   const { displayText, imageUrls } = parseStreamContent(fullResponse);
 
   onChunk(displayText);
@@ -93,6 +104,12 @@ export const sendMessageToAI = async (
 };
 
 export const generateChatTitle = async (userMessage, aiResponse) => {
+  if (typeof aiResponse === "object" && aiResponse?.type === "image") {
+    const words = userMessage.trim().split(/\s+/).slice(0, 5);
+
+    return words.join(" ");
+  }
+
   const prompt = `
 Create a concise, professional chat title using the conversation below.
 
@@ -107,7 +124,8 @@ Assistant: ${aiResponse}
 `;
 
   const response = await sendMessageToAI(prompt, [], () => {}, []);
-
+  console.log("Title API Response:", response);
+  console.log("Type:", typeof response);
   const cleanedTitle = response
     .trim()
     .split("\n")[0]
