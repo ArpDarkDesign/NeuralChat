@@ -1,6 +1,6 @@
 const { getAIResponseStream } = require("../services/aiService");
 const { uploadImages } = require("../utils/cloudinary");
-
+const { getAppInfoResponse } = require("../services/appInfoService");
 const { generateImage } = require("../services/imageService");
 
 const IMAGE_URLS_MARKER = "\x00NEURALCHAT_IMAGE_URLS:";
@@ -28,6 +28,15 @@ const isImageRequest = (message = "") => {
 const chatWithAI = async (req, res) => {
   try {
     let { message, history = [] } = req.body;
+
+    const appInfoResponse = getAppInfoResponse(message);
+
+    if (appInfoResponse) {
+      return res.json({
+        type: "app-info",
+        response: appInfoResponse,
+      });
+    }
 
     const wantsImage = isImageRequest(message);
 

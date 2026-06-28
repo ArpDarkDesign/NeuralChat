@@ -57,6 +57,21 @@ export const sendMessageToAI = async (
     throw new Error((await response.text()) || "AI request failed");
   }
 
+  const contentType = response.headers.get("content-type");
+
+  if (contentType?.includes("application/json")) {
+    const parsed = await response.json();
+
+    if (parsed.type === "image") {
+      return parsed;
+    }
+
+    if (parsed.type === "app-info") {
+      onChunk(parsed.response);
+      return parsed.response;
+    }
+  }
+
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
 
@@ -88,8 +103,12 @@ export const sendMessageToAI = async (
     if (parsed.type === "image") {
       return parsed;
     }
+
+    if (parsed.type === "app-info") {
+      return parsed.response;
+    }
   } catch {
-    // not an image response
+    // not JSON
   }
 
   const { displayText, imageUrls } = parseStreamContent(fullResponse);
