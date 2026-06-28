@@ -2,7 +2,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Copy } from "lucide-react";
 
-function ChatMessage({ sender, message, images = [], image, time }) {
+function ChatMessage({ sender, message, images = [], image, pdfs = [], time }) {
   const isTypingMessage = message === "NeuralChat is typing...";
   const copyMessage = async () => {
     try {
@@ -48,6 +48,24 @@ function ChatMessage({ sender, message, images = [], image, time }) {
                   />
                 );
               })}
+            </div>
+          )}
+
+          {sender === "user" && pdfs.length > 0 && (
+            <div className="pdf-preview-list">
+              {pdfs.map((pdf, index) => (
+                <div key={pdf.name + index} className="pdf-preview-card">
+                  <div className="pdf-icon">📄</div>
+
+                  <div className="pdf-info">
+                    <div className="pdf-name">{pdf.name}</div>
+
+                    <div className="pdf-size">
+                      {(pdf.size / 1024).toFixed(1)} KB
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 

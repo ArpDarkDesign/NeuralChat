@@ -236,7 +236,12 @@ function Chat() {
       firstUserMessagesRef.current.set(currentChatId, displayedMessage);
     }
 
-    const blobUrls = images.map((file) => URL.createObjectURL(file));
+    const imageBlobUrls = images
+      .filter((file) => file.type.startsWith("image/"))
+      .map((file) => URL.createObjectURL(file));
+
+    const pdfFiles = images.filter((file) => file.type === "application/pdf");
+
     const botMessageId = `${currentChatId}-${Date.now()}-bot`;
 
     setConversations((prev) =>
@@ -258,7 +263,11 @@ function Chat() {
             {
               sender: "user",
               text: displayedMessage,
-              images: blobUrls,
+              images: imageBlobUrls,
+              pdfs: pdfFiles.map((file) => ({
+                name: file.name,
+                size: file.size,
+              })),
               time: currentTime(),
             },
             {
@@ -316,7 +325,7 @@ function Chat() {
         },
         images,
         (cloudinaryUrls) => {
-          blobUrls.forEach((url) => URL.revokeObjectURL(url));
+          imageBlobUrls.forEach((url) => URL.revokeObjectURL(url));
 
           setConversations((prev) =>
             prev.map((chat) => {
@@ -371,7 +380,7 @@ function Chat() {
       return true;
     } catch (error) {
       console.error(error);
-      blobUrls.forEach((url) => URL.revokeObjectURL(url));
+      imageBlobUrls.forEach((url) => URL.revokeObjectURL(url));
 
       setConversations((prev) =>
         prev.map((chat) => {
@@ -606,6 +615,7 @@ function Chat() {
               message={msg.text}
               images={msg.images}
               image={msg.image}
+              pdfs={msg.pdfs}
               time={msg.time}
             />
           ))}

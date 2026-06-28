@@ -101,7 +101,8 @@ function ChatInput({ onSend }) {
             ref={fileInputRef}
             className="image-file-input"
             type="file"
-            accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+            accept="image/*,.pdf"
+            // accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
             multiple
             onChange={handleImageSelect}
           />
@@ -133,7 +134,9 @@ function ChatInput({ onSend }) {
                   type="button"
                   onClick={() => {
                     setShowAttachmentMenu(false);
-                    alert("PDF support coming soon.");
+                    fileInputRef.current?.click();
+
+                    // alert("PDF support coming soon.");
                   }}
                 >
                   <div className="attachment-title">📄 PDF</div>

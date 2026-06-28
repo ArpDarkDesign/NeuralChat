@@ -41,7 +41,7 @@ export const sendMessageToAI = async (
       ? (() => {
           const formData = new FormData();
           formData.append("message", message);
-          images.forEach((image) => formData.append("images", image));
+          images.forEach((image) => formData.append("files", image));
           return formData;
         })()
       : JSON.stringify({ message, history });
