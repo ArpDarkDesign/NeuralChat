@@ -4,7 +4,7 @@ const { uploadImages } = require("../utils/cloudinary");
 const { generateImage } = require("../services/imageService");
 
 const IMAGE_URLS_MARKER = "\x00NEURALCHAT_IMAGE_URLS:";
-
+const pdfParse = require("pdf-parse");
 const isImageRequest = (message = "") => {
   const text = message.toLowerCase();
 
@@ -41,16 +41,30 @@ const chatWithAI = async (req, res) => {
 
     history = Array.isArray(history) ? history : [];
 
-    const images = req.files || [];
-    const allowedImageTypes = new Set([
+    const files = req.files || [];
+
+    const images = files.filter((file) => file.mimetype.startsWith("image/"));
+
+    const pdfs = files.filter((file) => file.mimetype === "application/pdf");
+
+    const allowedFileTypes = new Set([
       "image/png",
       "image/jpeg",
       "image/webp",
+      "application/pdf",
     ]);
-    if (images.some((image) => !allowedImageTypes.has(image.mimetype))) {
+    if (files.some((file) => !allowedFileTypes.has(file.mimetype))) {
       return res.status(400).json({
-        message: "Only PNG, JPG, JPEG, and WebP images are supported.",
+        message: "Only PNG, JPG, JPEG, WebP, and PDF files are supported.",
       });
+    }
+
+    let pdfText = "";
+
+    if (pdfs.length > 0) {
+      const parsed = await pdfParse(pdfs[0].buffer);
+
+      pdfText = parsed.text;
     }
 
     if (wantsImage) {
@@ -76,7 +90,21 @@ const chatWithAI = async (req, res) => {
           })
         : null;
 
-    const stream = await getAIResponseStream(message, history, images);
+    let finalPrompt = message;
+
+    if (pdfText) {
+      finalPrompt = `
+You are analyzing the following PDF.
+
+PDF Content:
+${pdfText}
+
+User Request:
+${message}
+`;
+    }
+
+    const stream = await getAIResponseStream(finalPrompt, history, images);
 
     for await (const chunk of stream) {
       const content = chunk.choices?.[0]?.delta?.content || "";

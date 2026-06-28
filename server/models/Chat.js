@@ -30,6 +30,12 @@ const chatSchema = new mongoose.Schema(
           type: [String],
           default: [],
         },
+        pdfs: [
+          {
+            name: String,
+            size: Number,
+          },
+        ],
       },
     ],
   },

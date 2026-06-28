@@ -116,6 +116,11 @@ const sanitizeMessages = (messages = []) =>
     images: (msg.images || []).filter(
       (url) => typeof url === "string" && /^https?:\/\//.test(url),
     ),
+
+    pdfs: (msg.pdfs || []).map((pdf) => ({
+      name: pdf.name,
+      size: pdf.size,
+    })),
   }));
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
