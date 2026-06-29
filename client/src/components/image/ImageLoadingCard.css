@@ -1,0 +1,147 @@
+.image-generation-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  width: 100%;
+  max-width: 520px;
+
+  padding: 18px 20px;
+
+  border-radius: 18px;
+
+  background: rgba(17, 24, 39, 0.92);
+
+  border: 1px solid rgba(255,255,255,.06);
+
+  overflow: hidden;
+
+  position: relative;
+}
+
+.image-generation-card::before{
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+    linear-gradient(
+        135deg,
+        rgba(124,58,237,.10),
+        rgba(255,122,24,.08)
+    );
+
+    pointer-events:none;
+}
+
+.generation-logo{
+    width:70px;
+    height:70px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:16px;
+
+    background:rgba(255,255,255,.03);
+
+    flex-shrink:0;
+}
+
+.generation-logo img{
+    width:42px;
+    height:42px;
+
+    animation:boltPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes boltPulse{
+
+    0%{
+        transform:scale(.95);
+        filter:drop-shadow(0 0 6px rgba(255,180,0,.15));
+    }
+
+    50%{
+        transform:scale(1.08);
+        filter:drop-shadow(0 0 18px rgba(255,180,0,.65));
+    }
+
+    100%{
+        transform:scale(.95);
+        filter:drop-shadow(0 0 6px rgba(255,180,0,.15));
+    }
+
+}
+
+.generation-content{
+    flex:1;
+}
+
+.generation-content h3{
+
+    margin:0;
+
+    font-size:18px;
+
+    font-weight:600;
+
+    color:#fff;
+}
+
+.generation-content p{
+
+    margin-top:6px;
+
+    color:#A6AEC2;
+
+    font-size:14px;
+}
+
+.generation-progress{
+
+    margin-top:16px;
+
+    width:100%;
+
+    height:6px;
+
+    border-radius:999px;
+
+    overflow:hidden;
+
+    background:rgba(255,255,255,.08);
+}
+
+.generation-progress-bar{
+
+    width:35%;
+
+    height:100%;
+
+    border-radius:999px;
+
+    background:
+    linear-gradient(
+        90deg,
+        #FFD84A,
+        #FF8A24
+    );
+
+    animation:loadingBar 1.5s ease infinite;
+}
+
+@keyframes loadingBar{
+
+    0%{
+        transform:translateX(-120%);
+    }
+
+    100%{
+        transform:translateX(350%);
+    }
+
+}
