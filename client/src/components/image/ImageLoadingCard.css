@@ -76,11 +76,15 @@
 .generation-logo img {
   width: 44px;
   height: 44px;
-  animation:
-    boltRotate 12s linear infinite,
-    boltScale 2.8s ease-in-out infinite,
-    boltGlow 2.8s ease-in-out infinite;
+
+  transform-style: preserve-3d;
   transform-origin: center;
+
+  animation:
+    boltSpin 1.45s linear infinite,
+    boltFloat 2.4s ease-in-out infinite,
+    boltGlow 2.2s ease-in-out infinite;
+
   will-change: transform, filter;
 }
 
@@ -142,24 +146,24 @@
   line-height: 1.3;
 }
 
-@keyframes boltRotate {
+@keyframes boltSpin {
   from {
-    rotate: 0deg;
+    transform: rotateX(14deg) rotateY(0deg);
   }
 
   to {
-    rotate: 360deg;
+    transform: rotateX(14deg) rotateY(360deg);
   }
 }
 
-@keyframes boltScale {
+@keyframes boltFloat {
   0%,
   100% {
-    scale: 0.96;
+    translate: 0 0;
   }
 
   50% {
-    scale: 1.05;
+    translate: 0 -6px;
   }
 }
 
