@@ -147,13 +147,10 @@ code {
   font-weight: 600;
   cursor: pointer;
 }
-/* Hide Default Cursor */
 
 * {
   cursor: none;
 }
-
-/* Purple Cursor */
 
 .custom-cursor {
   width: 10px;

@@ -143,8 +143,7 @@ Assistant: ${aiResponse}
 `;
 
   const response = await sendMessageToAI(prompt, [], () => {}, []);
-  console.log("Title API Response:", response);
-  console.log("Type:", typeof response);
+
   const cleanedTitle = response
     .trim()
     .split("\n")[0]

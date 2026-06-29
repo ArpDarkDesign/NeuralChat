@@ -209,7 +209,9 @@ function Profile() {
           <div className="theme-card-header">
             <div>
               <p className="theme-kicker">Chat Theme</p>
-              <h2>{activeTheme.icon} {activeTheme.name}</h2>
+              <h2>
+                {activeTheme.icon} {activeTheme.name}
+              </h2>
             </div>
 
             <span className="active-theme-pill">Active</span>
@@ -247,11 +249,7 @@ function Profile() {
           </div>
         </div>
 
-        {/* Dashboard Grid */}
-
         <div className="profile-grid">
-          {/* Stats */}
-
           <div className="stats-card">
             <h2>📊 Neural Stats</h2>
 
@@ -273,8 +271,6 @@ function Profile() {
               <span>{stats.messages}</span>
             </div>
           </div>
-
-          {/* Activity */}
 
           <div className="activity-card">
             <h2>🔥 Activity Heat</h2>
@@ -302,8 +298,6 @@ function Profile() {
               </span>
             </div>
           </div>
-
-          {/* Journey */}
 
           <div className="journey-card">
             <h2>🚀 Neural Journey</h2>
@@ -369,8 +363,6 @@ function Profile() {
             </div>
           </div>
 
-          {/* DNA */}
-
           <div className="dna-card">
             <h2>🧠 Neural DNA</h2>
 
@@ -395,8 +387,6 @@ function Profile() {
             </div>
           </div>
         </div>
-
-        {/* Security */}
 
         <div className="security-card">
           <h2>🔒 Security</h2>

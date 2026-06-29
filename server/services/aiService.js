@@ -6,8 +6,6 @@ const groq = new Groq({
 });
 
 const getAIResponseStream = async (message, history = [], images = []) => {
-  console.log("Groq History:");
-  console.log(history);
   const optimizedImages = await Promise.all(
     images.map(async (image) => {
       const optimizedBuffer = await sharp(image.buffer)

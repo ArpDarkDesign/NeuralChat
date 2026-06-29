@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const getChats = async (req, res) => {
   try {
     const { userId } = req.params;
-    console.log("GET CHATS USER:", userId);
     const chats = await Chat.find({ userId }).sort({
       updatedAt: -1,
     });
@@ -39,8 +38,6 @@ const getUserStats = async (req, res) => {
       activityMap[day] = (activityMap[day] || 0) + 1;
     });
 
-    // Most active day
-
     let mostActiveDay = "None";
     let highestCount = 0;
 
@@ -51,7 +48,6 @@ const getUserStats = async (req, res) => {
       }
     });
 
-    // Last chat
     const lastChat =
       chats.length > 0
         ? chats.reduce(
@@ -62,8 +58,6 @@ const getUserStats = async (req, res) => {
             null,
           )
         : null;
-
-    // Streak
 
     const activeDates = new Set();
 

@@ -551,7 +551,6 @@ function Chat() {
     if (!currentUser) return;
 
     conversations.forEach((chat) => {
-      console.log("Autosave check:", chat.messages[chat.messages.length - 1]);
       if (!hasUserMessages(chat)) return;
       if (hasLocalImageUrls(chat)) return;
 

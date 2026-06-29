@@ -20,10 +20,7 @@ function ResetPassword() {
     }
 
     try {
-      const response = await resetPassword(
-        token,
-        password
-      );
+      const response = await resetPassword(token, password);
 
       alert(response.message);
 
@@ -43,18 +40,14 @@ function ResetPassword() {
             type="password"
             placeholder="New Password"
             value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
+            onChange={(e) => setPassword(e.target.value)}
           />
 
           <input
             type="password"
             placeholder="Confirm Password"
             value={confirmPassword}
-            onChange={(e) =>
-              setConfirmPassword(e.target.value)
-            }
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
           <button type="submit" className="signin-btn">

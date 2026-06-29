@@ -1,5 +1,4 @@
 import "./Login.css";
-// import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { loginUser } from "../services/authService";

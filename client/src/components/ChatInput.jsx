@@ -102,7 +102,6 @@ function ChatInput({ onSend }) {
             className="image-file-input"
             type="file"
             accept="image/*,.pdf"
-            // accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
             multiple
             onChange={handleImageSelect}
           />
@@ -155,17 +154,6 @@ function ChatInput({ onSend }) {
                   <div className="attachment-title">📁 Files</div>
                   <div className="attachment-subtitle">Upload any file</div>
                 </button>
-
-                {/* <button
-                  type="button"
-                  onClick={() => {
-                    setShowAttachmentMenu(false);
-                    alert("Image Generator coming soon.");
-                  }}
-                >
-                  <div className="attachment-title">🎨 Image Generator</div>
-                  <div className="attachment-subtitle">Create AI artwork</div>
-                </button> */}
               </div>
             )}
           </div>

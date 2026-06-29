@@ -319,17 +319,6 @@
   flex-wrap: wrap;
 }
 
-/* .image-preview-list {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-} */
-
-/* .image-preview {
-  position: relative;
-  flex: 0 0 auto;
-} */
-
 .image-preview {
   width: 90px;
 
@@ -534,13 +523,12 @@ pre {
   margin: 12px 0;
 }
 .markdown-content {
-  /* width: fit-content; */
   max-width: 100%;
   text-align: left;
   line-height: 1.8;
   overflow-wrap: break-word;
   word-break: break-word;
-} /* .markdown-content ul, .markdown-content ol { padding-left: 24px; margin: 12px 0; } */
+}
 .markdown-content h1,
 .markdown-content h2,
 .markdown-content h3 {

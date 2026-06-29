@@ -62,19 +62,13 @@ const deleteAccount = async (req, res) => {
       });
     }
 
-    // Delete avatar from cloudinary
-
     if (user.avatarPublicId && user.avatarPublicId.trim() !== "") {
       await cloudinary.uploader.destroy(user.avatarPublicId);
     }
 
-    // Delete chats
-
     await Chat.deleteMany({
       userId,
     });
-
-    // Delete user
 
     await User.findByIdAndDelete(userId);
 
