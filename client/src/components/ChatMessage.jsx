@@ -1,6 +1,45 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Copy } from "lucide-react";
+import { memo, useState } from "react";
+import ImageGenerationCard from "./image/ImageLoadingCard";
+
+const GeneratedImage = memo(function GeneratedImage({ src }) {
+  const [status, setStatus] = useState("loading");
+
+  const isLoaded = status === "loaded";
+  const hasFailed = status === "failed";
+
+  return (
+    <div
+      className={`generated-image-shell ${
+        isLoaded ? "is-loaded" : "is-loading"
+      } ${hasFailed ? "has-error" : ""}`}
+    >
+      {!hasFailed && (
+        <div className="generated-image-loader" aria-hidden={isLoaded}>
+          <ImageGenerationCard />
+        </div>
+      )}
+
+      {hasFailed && (
+        <div className="generated-image-error" role="status">
+          Image could not be loaded.
+        </div>
+      )}
+
+      <img
+        src={src}
+        alt="AI Generated"
+        className="generated-image"
+        loading="eager"
+        decoding="async"
+        onLoad={() => setStatus("loaded")}
+        onError={() => setStatus("failed")}
+      />
+    </div>
+  );
+});
 
 function ChatMessage({ sender, message, images = [], image, pdfs = [], time }) {
   const isTypingMessage = message === "NeuralChat is typing...";
@@ -71,14 +110,7 @@ function ChatMessage({ sender, message, images = [], image, pdfs = [], time }) {
 
           {sender === "bot" && image && (
             <div className="generated-image-container">
-              <img
-                src={image}
-                alt="AI Generated"
-                className="generated-image"
-                loading="lazy"
-              />
-
-              <div className="generated-image-caption">AI Generated Image</div>
+              <GeneratedImage key={image} src={image} />
             </div>
           )}
 

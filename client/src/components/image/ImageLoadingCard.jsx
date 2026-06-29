@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "./ImageGenerationCard.css";
+import "./ImageLoadingCard.css";
 import BoltLogo from "../../assets/brand/logo.svg";
 
 const stages = [
@@ -16,13 +16,13 @@ function ImageGenerationCard({ title = "Generating Image" }) {
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % stages.length);
-    }, 1700);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="image-generation-card">
+    <div className="image-generation-card" aria-live="polite">
       <div className="generation-logo">
         <img src={BoltLogo} alt="NeuralChat" />
       </div>
@@ -30,11 +30,13 @@ function ImageGenerationCard({ title = "Generating Image" }) {
       <div className="generation-content">
         <h3>{title}</h3>
 
-        <p>{stages[index]}</p>
+        <p key={stages[index]}>{stages[index]}</p>
 
         <div className="generation-progress">
-          <div className="generation-progress-bar"></div>
+          <div className="generation-progress-bar" />
         </div>
+
+        <span className="generation-powered">Powered by NeuralChat</span>
       </div>
     </div>
   );

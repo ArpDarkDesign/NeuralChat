@@ -242,7 +242,7 @@ function Chat() {
 
     const pdfFiles = images.filter((file) => file.type === "application/pdf");
 
-    const botMessageId = `${currentChatId}-${Date.now()}-bot`;
+    const botMessageId = `${currentChatId}-${createLocalId()}-bot`;
 
     setConversations((prev) =>
       prev.map((chat) => {
@@ -363,7 +363,7 @@ function Chat() {
                 msg.id === botMessageId
                   ? {
                       ...msg,
-                      text: "AI Generated Image",
+                      text: "",
                       image: finalResponse.imageUrl,
                     }
                   : msg,
