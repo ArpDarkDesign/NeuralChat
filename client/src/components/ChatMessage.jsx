@@ -1,6 +1,6 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Copy } from "lucide-react";
+import { Copy, Download } from "lucide-react";
 import { memo, useState } from "react";
 import ImageGenerationCard from "./image/ImageLoadingCard";
 
@@ -50,6 +50,37 @@ function ChatMessage({ sender, message, images = [], image, pdfs = [], time }) {
       console.log("Copy failed", error);
     }
   };
+
+  const downloadImage = async (imageUrl) => {
+    try {
+      const response = await fetch(imageUrl);
+
+      if (!response.ok) {
+        throw new Error("Failed to download image.");
+      }
+
+      const blob = await response.blob();
+
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+
+      link.href = blobUrl;
+
+      link.download = `neuralchat-${Date.now()}.png`;
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
+
   return (
     <div
       className={`message-wrapper ${
@@ -111,6 +142,13 @@ function ChatMessage({ sender, message, images = [], image, pdfs = [], time }) {
           {sender === "bot" && image && (
             <div className="generated-image-container">
               <GeneratedImage key={image} src={image} />
+              <button
+                className="image-download-btn"
+                onClick={() => downloadImage(image)}
+                title="Download Image"
+              >
+                <Download size={18} />
+              </button>
             </div>
           )}
 
