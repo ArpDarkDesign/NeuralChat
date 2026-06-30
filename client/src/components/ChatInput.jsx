@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { useToast } from "./ui/useDialog";
 
 function ChatInput({ onSend }) {
+  const showToast = useToast();
   const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
 
   const [text, setText] = useState("");
@@ -135,7 +137,7 @@ function ChatInput({ onSend }) {
                     setShowAttachmentMenu(false);
                     fileInputRef.current?.click();
 
-                    // alert("PDF support coming soon.");
+                    // PDF files are accepted by the current file input.
                   }}
                 >
                   <div className="attachment-title">📄 PDF</div>
@@ -148,7 +150,10 @@ function ChatInput({ onSend }) {
                   type="button"
                   onClick={() => {
                     setShowAttachmentMenu(false);
-                    alert("File support coming soon.");
+                    showToast({
+                      type: "info",
+                      message: "File uploads are coming soon.",
+                    });
                   }}
                 >
                   <div className="attachment-title">📁 Files</div>

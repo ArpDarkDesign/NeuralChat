@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useInputDialog } from "./ui/useDialog";
 
 function Sidebar({
   conversations,
@@ -11,6 +12,7 @@ function Sidebar({
   onRenameChat,
 }) {
   const navigate = useNavigate();
+  const inputDialog = useInputDialog();
   const [searchQuery, setSearchQuery] = useState("");
 
   const user = JSON.parse(localStorage.getItem("user"));
@@ -55,13 +57,16 @@ function Sidebar({
               <div className="chat-actions">
                 <button
                   className="rename-chat-btn"
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
 
-                    const newTitle = prompt(
-                      "Enter new chat title:",
-                      chat.title,
-                    );
+                    const newTitle = await inputDialog({
+                      title: "Rename conversation",
+                      description: "Enter a new title for this chat.",
+                      defaultValue: chat.title,
+                      placeholder: "Conversation title",
+                      confirmText: "Rename",
+                    });
 
                     if (newTitle) {
                       onRenameChat(chatId, newTitle);

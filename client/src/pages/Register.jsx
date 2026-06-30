@@ -5,9 +5,11 @@ import { registerUser } from "../services/authService";
 import { GoogleLogin } from "@react-oauth/google";
 import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
+import { useToast } from "../components/ui/useDialog";
 
 function Register() {
   const navigate = useNavigate();
+  const showToast = useToast();
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
@@ -50,7 +52,7 @@ function Register() {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
+      showToast({ type: "warning", message: "Passwords do not match" });
       return;
     }
 
@@ -61,11 +63,14 @@ function Register() {
         password: formData.password,
       });
 
-      alert(response.message);
+      showToast({ type: "success", message: response.message });
 
       navigate("/login");
     } catch (error) {
-      alert(error.response?.data?.message || "Registration failed");
+      showToast({
+        type: "error",
+        message: error.response?.data?.message || "Registration failed",
+      });
     }
   };
 

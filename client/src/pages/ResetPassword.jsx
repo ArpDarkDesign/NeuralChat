@@ -2,11 +2,13 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { resetPassword } from "../services/authService";
 import "./Login.css";
+import { useToast } from "../components/ui/useDialog";
 
 function ResetPassword() {
   const { token } = useParams();
 
   const navigate = useNavigate();
+  const showToast = useToast();
 
   const [password, setPassword] = useState("");
 
@@ -16,17 +18,21 @@ function ResetPassword() {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      return alert("Passwords do not match");
+      showToast({ type: "warning", message: "Passwords do not match" });
+      return;
     }
 
     try {
       const response = await resetPassword(token, password);
 
-      alert(response.message);
+      showToast({ type: "success", message: response.message });
 
       navigate("/");
     } catch (error) {
-      alert(error.response?.data?.message);
+      showToast({
+        type: "error",
+        message: error.response?.data?.message || "Password reset failed",
+      });
     }
   };
 

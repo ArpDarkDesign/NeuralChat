@@ -11,6 +11,7 @@ import {
   getChatThemeById,
   getStoredChatThemeId,
 } from "../theme/chatThemes";
+import { useToast } from "../components/ui/useDialog";
 
 function Profile() {
   const storedUser = localStorage.getItem("user");
@@ -19,6 +20,7 @@ function Profile() {
     storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : {};
 
   const navigate = useNavigate();
+  const showToast = useToast();
 
   const [stats, setStats] = useState({
     chats: 0,
@@ -131,7 +133,10 @@ function Profile() {
   const handleDeleteAccount = async () => {
     try {
       if (deleteText !== "DELETE") {
-        alert('Type "DELETE" to confirm account deletion');
+        showToast({
+          type: "warning",
+          message: 'Type "DELETE" to confirm account deletion',
+        });
         return;
       }
 

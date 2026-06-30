@@ -2,10 +2,12 @@ import { useState } from "react";
 import { forgotPassword } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import { useToast } from "../components/ui/useDialog";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const showToast = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,11 +15,14 @@ function ForgotPassword() {
     try {
       const response = await forgotPassword(email);
 
-      alert(response.message);
+      showToast({ type: "success", message: response.message });
 
       navigate("/");
     } catch (error) {
-      alert(error.response?.data?.message);
+      showToast({
+        type: "error",
+        message: error.response?.data?.message || "Password reset failed",
+      });
     }
   };
 

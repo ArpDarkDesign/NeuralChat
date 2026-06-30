@@ -5,9 +5,11 @@ import { loginUser } from "../services/authService";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { Eye, EyeOff } from "lucide-react";
+import { useToast } from "../components/ui/useDialog";
 
 function Login() {
   const navigate = useNavigate();
+  const showToast = useToast();
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
@@ -56,7 +58,10 @@ function Login() {
 
       navigate("/chat");
     } catch (error) {
-      alert(error.response?.data?.message || "Login failed");
+      showToast({
+        type: "error",
+        message: error.response?.data?.message || "Login failed",
+      });
     }
   };
 
