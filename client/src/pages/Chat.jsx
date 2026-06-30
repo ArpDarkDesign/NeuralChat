@@ -660,6 +660,14 @@ function Chat() {
         </div>
 
         <ChatInput onSend={handleSend} />
+
+<div className="chat-disclaimer">
+  <span>
+    NeuralChat can make mistakes. Verify important information..
+  </span>
+</div>
+
+
       </div>
 
       {showScrollButton && (
