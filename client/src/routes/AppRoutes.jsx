@@ -7,6 +7,11 @@ import ProtectedRoute from "./ProtectedRoute";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
 import Profile from "../pages/Profile";
+import ReportBug from "../pages/support/ReportBug";
+import FeatureRequest from "../pages/support/FeatureRequest";
+import ContactSupport from "../pages/support/ContactSupport";
+import Privacy from "../pages/Privacy";
+import Terms from "../pages/Terms";
 
 function AppRoutes() {
   return (
@@ -42,6 +47,46 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/support/bug"
+          element={
+            <ProtectedRoute>
+              <ReportBug />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/support/feature"
+          element={
+            <ProtectedRoute>
+              <FeatureRequest />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/support/contact"
+          element={
+            <ProtectedRoute>
+              <ContactSupport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/privacy"
+          element={
+            <ProtectedRoute>
+              <Privacy />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/terms"
+          element={
+            <ProtectedRoute>
+              <Terms />
             </ProtectedRoute>
           }
         />

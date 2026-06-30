@@ -4,6 +4,7 @@ import { getUserStats } from "../services/chatService";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import { uploadAvatar, deleteAccount } from "../services/userService";
+import SupportCenterCard from "../components/support/SupportCenterCard";
 import {
   CHAT_THEME_STORAGE_KEY,
   CHAT_THEMES,
@@ -403,6 +404,8 @@ function Profile() {
             <button onClick={logout}>→</button>
           </div>
         </div>
+
+        <SupportCenterCard />
 
         <div className="danger-zone">
           <h2>⚠ Danger Zone</h2>
