@@ -1,0 +1,282 @@
+.floating-chat-button {
+  position: fixed;
+  top: 24px;
+  right: 75px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 20px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(160, 120, 255, 0.22);
+
+  background: linear-gradient(
+    135deg,
+    rgba(22, 18, 45, 0.82),
+    rgba(14, 20, 40, 0.78)
+  );
+
+  background-size: 250% 250%;
+
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  overflow: hidden;
+  z-index: 1000;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease;
+
+  animation:
+    portalEntrance .6s cubic-bezier(.16,1,.3,1),
+    floatIdle 5s ease-in-out .6s infinite,
+    gradientShift 12s linear infinite,
+    auroraGlow 6s ease-in-out infinite;
+}
+
+/* Hover */
+
+.floating-chat-button:hover {
+
+  transform:
+    translateY(-4px)
+    rotate(-1deg)
+    scale(1.04);
+
+  border-color: rgba(180, 130, 255, .45);
+}
+
+/* Click */
+
+.floating-chat-button:active{
+
+  transform:
+    scale(.96);
+
+}
+
+/* Icon */
+
+.floating-chat-button svg{
+
+  color:#ae7dff;
+
+  flex-shrink:0;
+
+  animation:iconOrbit 3s ease-in-out infinite;
+
+}
+
+/* Focus */
+
+.floating-chat-button:focus-visible{
+
+  outline:2px solid #a87cff;
+
+  outline-offset:4px;
+
+}
+
+/* Shine */
+
+.floating-chat-button::before{
+
+  content:"";
+
+  position:absolute;
+
+  top:0;
+
+  left:-140%;
+
+  width:45%;
+
+  height:100%;
+
+  background:
+
+  linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.22),
+    transparent
+  );
+
+  transform:skewX(-25deg);
+
+  transition:left .8s ease;
+
+}
+
+.floating-chat-button:hover::before{
+
+  left:170%;
+
+}
+
+/* ===========================
+   Animations
+=========================== */
+
+@keyframes portalEntrance{
+
+  0%{
+
+    opacity:0;
+
+    transform:
+      translateY(-18px)
+      scale(.82)
+      rotate(-4deg);
+
+    filter:blur(8px);
+
+  }
+
+  65%{
+
+    opacity:1;
+
+    transform:
+      translateY(3px)
+      scale(1.03);
+
+    filter:blur(0);
+
+  }
+
+  100%{
+
+    opacity:1;
+
+    transform:
+      translateY(0)
+      scale(1);
+
+    filter:none;
+
+  }
+
+}
+
+@keyframes floatIdle{
+
+  0%{
+    transform:translateY(0);
+  }
+
+  50%{
+    transform:translateY(-3px);
+  }
+
+  100%{
+    transform:translateY(0);
+  }
+
+}
+
+@keyframes gradientShift{
+
+  0%{
+    background-position:0% 50%;
+  }
+
+  50%{
+    background-position:100% 50%;
+  }
+
+  100%{
+    background-position:0% 50%;
+  }
+
+}
+
+@keyframes auroraGlow{
+
+  0%{
+
+    box-shadow:
+      0 0 8px rgba(135,92,255,.18),
+      0 0 24px rgba(80,120,255,.08);
+
+  }
+
+  50%{
+
+    box-shadow:
+      0 0 18px rgba(160,92,255,.42),
+      0 0 40px rgba(80,120,255,.18);
+
+  }
+
+  100%{
+
+    box-shadow:
+      0 0 8px rgba(135,92,255,.18),
+      0 0 24px rgba(80,120,255,.08);
+
+  }
+
+}
+
+@keyframes iconOrbit{
+
+  0%{
+    transform:translate(0,0);
+  }
+
+  25%{
+    transform:translate(1px,-1px);
+  }
+
+  50%{
+    transform:translateY(-2px);
+  }
+
+  75%{
+    transform:translate(-1px,0);
+  }
+
+  100%{
+    transform:translate(0,0);
+  }
+
+}
+
+/* ===========================
+   Mobile
+=========================== */
+
+@media (max-width:768px){
+
+  .floating-chat-button{
+
+    top:16px;
+    right:16px;
+
+    padding:10px 14px;
+
+    gap:8px;
+
+    font-size:.9rem;
+
+  }
+
+  .chat-text{
+
+    display:none;
+
+  }
+
+}

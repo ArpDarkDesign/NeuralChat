@@ -12,6 +12,7 @@ import {
   getStoredChatThemeId,
 } from "../theme/chatThemes";
 import { useToast } from "../components/ui/useDialog";
+import FloatingChatButton from "../components/navigation/FloatingChatButton";
 
 function Profile() {
   const storedUser = localStorage.getItem("user");
@@ -161,6 +162,11 @@ function Profile() {
   }, [showDeleteModal]);
 
   return (
+
+
+<>
+    <FloatingChatButton />
+
     <div className="profile-page">
       <div className="profile-container">
         {/* Identity Card */}
@@ -474,6 +480,7 @@ function Profile() {
         )}
       </div>
     </div>
+     </>
   );
 }
 
