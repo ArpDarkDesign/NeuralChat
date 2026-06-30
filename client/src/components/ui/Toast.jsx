@@ -1,4 +1,10 @@
-import { AlertCircle, CheckCircle2, Info, TriangleAlert, X } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Info,
+  TriangleAlert,
+  X,
+} from "lucide-react";
 
 const toastIcons = {
   success: CheckCircle2,

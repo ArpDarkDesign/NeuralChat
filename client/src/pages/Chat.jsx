@@ -73,6 +73,7 @@ function Chat() {
 
   const [chatTheme, setChatTheme] = useState(getStoredChatThemeId);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [currentUser] = useState(JSON.parse(localStorage.getItem("user")));
   const welcomeMessages = createWelcomeMessages(currentUser);
@@ -423,6 +424,7 @@ function Chat() {
 
     if (reusableEmptyChat) {
       setActiveChatId(getChatKey(reusableEmptyChat));
+      setIsSidebarOpen(false);
       return;
     }
 
@@ -432,6 +434,7 @@ function Chat() {
     newChatIdsRef.current.add(newChatId);
     setConversations((prev) => [newChat, ...prev]);
     setActiveChatId(newChatId);
+    setIsSidebarOpen(false);
   };
 
   const handleDeleteChat = async (chatId) => {
@@ -545,11 +548,6 @@ function Chat() {
       const distanceFromBottom =
         container.scrollHeight - container.scrollTop - container.clientHeight;
 
-      console.log({
-        scrollTop: container.scrollTop,
-        distanceFromBottom,
-      });
-
       setShowScrollButton(distanceFromBottom > 180);
     };
 
@@ -626,9 +624,39 @@ function Chat() {
     },
     [],
   );
-  console.log("showScrollButton:", showScrollButton);
+
+  useEffect(() => {
+    if (!isSidebarOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isSidebarOpen]);
+
   return (
-    <div className={`chat-page chat-theme-${chatTheme}`}>
+    <div
+      className={`chat-page chat-theme-${chatTheme} ${
+        isSidebarOpen ? "sidebar-open" : ""
+      }`}
+    >
+      <div
+        className="sidebar-overlay"
+        onClick={() => setIsSidebarOpen(false)}
+        aria-hidden="true"
+      ></div>
+
       <Sidebar
         conversations={conversations}
         activeChatId={activeChatId}
@@ -636,10 +664,14 @@ function Chat() {
         onNewChat={handleNewChat}
         onDeleteChat={handleDeleteChat}
         onRenameChat={handleRenameChat}
+        onSelectChat={() => setIsSidebarOpen(false)}
       />
 
       <div className="chat-main">
-        <Navbar />
+        <Navbar
+          onMenuClick={() => setIsSidebarOpen(true)}
+          isMenuOpen={isSidebarOpen}
+        />
 
         <div className="messages-area" ref={messagesAreaRef}>
           {activeConversation?.messages.map((msg, index) => (
@@ -661,12 +693,9 @@ function Chat() {
 
         <ChatInput onSend={handleSend} />
 
-<div className="chat-disclaimer">
-  <span>
-    NeuralChat can make mistakes. Verify important information..
-  </span>
-</div>
-
+        <div className="chat-disclaimer">
+          <span>NeuralChat can make mistakes. Verify important information..</span>
+        </div>
 
       </div>
 

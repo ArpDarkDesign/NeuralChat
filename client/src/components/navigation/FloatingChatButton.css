@@ -39,244 +39,174 @@
     background 0.25s ease;
 
   animation:
-    portalEntrance .6s cubic-bezier(.16,1,.3,1),
-    floatIdle 5s ease-in-out .6s infinite,
+    portalEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    floatIdle 5s ease-in-out 0.6s infinite,
     gradientShift 12s linear infinite,
     auroraGlow 6s ease-in-out infinite;
 }
 
-/* Hover */
-
 .floating-chat-button:hover {
+  transform: translateY(-4px) rotate(-1deg) scale(1.04);
 
-  transform:
-    translateY(-4px)
-    rotate(-1deg)
-    scale(1.04);
-
-  border-color: rgba(180, 130, 255, .45);
+  border-color: rgba(180, 130, 255, 0.45);
 }
 
-/* Click */
-
-.floating-chat-button:active{
-
-  transform:
-    scale(.96);
-
+.floating-chat-button:active {
+  transform: scale(0.96);
 }
 
-/* Icon */
+.floating-chat-button svg {
+  color: #ae7dff;
 
-.floating-chat-button svg{
+  flex-shrink: 0;
 
-  color:#ae7dff;
-
-  flex-shrink:0;
-
-  animation:iconOrbit 3s ease-in-out infinite;
-
+  animation: iconOrbit 3s ease-in-out infinite;
 }
 
-/* Focus */
+.floating-chat-button:focus-visible {
+  outline: 2px solid #a87cff;
 
-.floating-chat-button:focus-visible{
-
-  outline:2px solid #a87cff;
-
-  outline-offset:4px;
-
+  outline-offset: 4px;
 }
 
-/* Shine */
+.floating-chat-button::before {
+  content: "";
 
-.floating-chat-button::before{
+  position: absolute;
 
-  content:"";
+  top: 0;
 
-  position:absolute;
+  left: -140%;
 
-  top:0;
+  width: 45%;
 
-  left:-140%;
+  height: 100%;
 
-  width:45%;
-
-  height:100%;
-
-  background:
-
-  linear-gradient(
+  background: linear-gradient(
     90deg,
     transparent,
-    rgba(255,255,255,.22),
+    rgba(255, 255, 255, 0.22),
     transparent
   );
 
-  transform:skewX(-25deg);
+  transform: skewX(-25deg);
 
-  transition:left .8s ease;
-
+  transition: left 0.8s ease;
 }
 
-.floating-chat-button:hover::before{
-
-  left:170%;
-
+.floating-chat-button:hover::before {
+  left: 170%;
 }
 
-/* ===========================
-   Animations
-=========================== */
+@keyframes portalEntrance {
+  0% {
+    opacity: 0;
 
-@keyframes portalEntrance{
+    transform: translateY(-18px) scale(0.82) rotate(-4deg);
 
-  0%{
-
-    opacity:0;
-
-    transform:
-      translateY(-18px)
-      scale(.82)
-      rotate(-4deg);
-
-    filter:blur(8px);
-
+    filter: blur(8px);
   }
 
-  65%{
+  65% {
+    opacity: 1;
 
-    opacity:1;
+    transform: translateY(3px) scale(1.03);
 
-    transform:
-      translateY(3px)
-      scale(1.03);
-
-    filter:blur(0);
-
+    filter: blur(0);
   }
 
-  100%{
+  100% {
+    opacity: 1;
 
-    opacity:1;
+    transform: translateY(0) scale(1);
 
-    transform:
-      translateY(0)
-      scale(1);
-
-    filter:none;
-
+    filter: none;
   }
-
 }
 
-@keyframes floatIdle{
-
-  0%{
-    transform:translateY(0);
+@keyframes floatIdle {
+  0% {
+    transform: translateY(0);
   }
 
-  50%{
-    transform:translateY(-3px);
+  50% {
+    transform: translateY(-3px);
   }
 
-  100%{
-    transform:translateY(0);
+  100% {
+    transform: translateY(0);
   }
-
 }
 
-@keyframes gradientShift{
-
-  0%{
-    background-position:0% 50%;
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
   }
 
-  50%{
-    background-position:100% 50%;
+  50% {
+    background-position: 100% 50%;
   }
 
-  100%{
-    background-position:0% 50%;
+  100% {
+    background-position: 0% 50%;
   }
-
 }
 
-@keyframes auroraGlow{
-
-  0%{
-
+@keyframes auroraGlow {
+  0% {
     box-shadow:
-      0 0 8px rgba(135,92,255,.18),
-      0 0 24px rgba(80,120,255,.08);
-
+      0 0 8px rgba(135, 92, 255, 0.18),
+      0 0 24px rgba(80, 120, 255, 0.08);
   }
 
-  50%{
-
+  50% {
     box-shadow:
-      0 0 18px rgba(160,92,255,.42),
-      0 0 40px rgba(80,120,255,.18);
-
+      0 0 18px rgba(160, 92, 255, 0.42),
+      0 0 40px rgba(80, 120, 255, 0.18);
   }
 
-  100%{
-
+  100% {
     box-shadow:
-      0 0 8px rgba(135,92,255,.18),
-      0 0 24px rgba(80,120,255,.08);
-
+      0 0 8px rgba(135, 92, 255, 0.18),
+      0 0 24px rgba(80, 120, 255, 0.08);
   }
-
 }
 
-@keyframes iconOrbit{
-
-  0%{
-    transform:translate(0,0);
+@keyframes iconOrbit {
+  0% {
+    transform: translate(0, 0);
   }
 
-  25%{
-    transform:translate(1px,-1px);
+  25% {
+    transform: translate(1px, -1px);
   }
 
-  50%{
-    transform:translateY(-2px);
+  50% {
+    transform: translateY(-2px);
   }
 
-  75%{
-    transform:translate(-1px,0);
+  75% {
+    transform: translate(-1px, 0);
   }
 
-  100%{
-    transform:translate(0,0);
+  100% {
+    transform: translate(0, 0);
   }
-
 }
 
-/* ===========================
-   Mobile
-=========================== */
+@media (max-width: 768px) {
+  .floating-chat-button {
+    top: 16px;
+    right: 16px;
 
-@media (max-width:768px){
+    padding: 10px 14px;
 
-  .floating-chat-button{
+    gap: 8px;
 
-    top:16px;
-    right:16px;
-
-    padding:10px 14px;
-
-    gap:8px;
-
-    font-size:.9rem;
-
+    font-size: 0.9rem;
   }
 
-  .chat-text{
-
-    display:none;
-
+  .chat-text {
+    display: none;
   }
-
 }

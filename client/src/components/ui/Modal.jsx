@@ -64,7 +64,11 @@ function Modal({
   }, [initialFocusRef, onClose]);
 
   return (
-    <div className="ui-modal-backdrop" role="presentation" onMouseDown={onClose}>
+    <div
+      className="ui-modal-backdrop"
+      role="presentation"
+      onMouseDown={onClose}
+    >
       <section
         ref={dialogRef}
         className="ui-modal"

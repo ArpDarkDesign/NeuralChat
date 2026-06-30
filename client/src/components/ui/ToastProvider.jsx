@@ -1,9 +1,4 @@
-import {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import ConfirmDialog from "./ConfirmDialog";
 import InputDialog from "./InputDialog";
 import Toast from "./Toast";
@@ -87,7 +82,11 @@ export function ToastProvider({ children }) {
     <UIContext.Provider value={value}>
       {children}
 
-      <div className="ui-toast-viewport" aria-live="polite" aria-relevant="additions">
+      <div
+        className="ui-toast-viewport"
+        aria-live="polite"
+        aria-relevant="additions"
+      >
         {toasts.map((toast) => (
           <Toast key={toast.id} toast={toast} onClose={dismissToast} />
         ))}

@@ -7,7 +7,9 @@ function SupportActionRow({ icon, title, subtitle, onClick }) {
 
       <span className="support-action-copy">
         <span className="support-action-title">{title}</span>
-        {subtitle && <span className="support-action-subtitle">{subtitle}</span>}
+        {subtitle && (
+          <span className="support-action-subtitle">{subtitle}</span>
+        )}
       </span>
 
       <span className="support-action-arrow" aria-hidden="true">

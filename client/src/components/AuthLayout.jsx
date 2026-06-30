@@ -19,8 +19,8 @@ const AuthLayout = ({ children }) => {
         </h1>
 
         <p>
-          Secure conversations, persistent memory,
-          and intelligent assistance in one futuristic workspace.
+          Secure conversations, persistent memory, and intelligent assistance in
+          one futuristic workspace.
         </p>
       </div>
 

@@ -10,6 +10,7 @@ function Sidebar({
   onNewChat,
   onDeleteChat,
   onRenameChat,
+  onSelectChat,
 }) {
   const navigate = useNavigate();
   const inputDialog = useInputDialog();
@@ -24,7 +25,7 @@ function Sidebar({
   );
 
   return (
-    <div className="sidebar">
+    <div className="sidebar" id="chat-sidebar">
       <div className="sidebar-logo">⚡ NeuralChat</div>
 
       <div className="sidebar-search">
@@ -50,7 +51,10 @@ function Sidebar({
             <div
               key={chatId}
               className={`chat-item ${activeChatId === chatId ? "active" : ""}`}
-              onClick={() => setActiveChatId(chatId)}
+              onClick={() => {
+                setActiveChatId(chatId);
+                onSelectChat?.();
+              }}
             >
               <span className="chat-title">{chat.title}</span>
 
