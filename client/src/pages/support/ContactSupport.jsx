@@ -1,5 +1,6 @@
 import SupportForm from "../../components/support/SupportForm";
 import SupportPageLayout from "../../components/support/SupportPageLayout";
+import { submitContactSupport } from "../../services/supportService";
 
 const contactFields = [
   {
@@ -31,7 +32,11 @@ function ContactSupport() {
       title="📧 Contact Support"
       description=""
     >
-      <SupportForm fields={contactFields} submitLabel="Submit Message" />
+      <SupportForm
+        fields={contactFields}
+        submitLabel="Submit Message"
+        onSubmit={submitContactSupport}
+      />
     </SupportPageLayout>
   );
 }

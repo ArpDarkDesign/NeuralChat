@@ -3,11 +3,13 @@ import { useMemo, useState } from "react";
 const getInitialValues = (fields) =>
   fields.reduce((values, field) => ({ ...values, [field.name]: "" }), {});
 
-function SupportForm({ fields, submitLabel }) {
+function SupportForm({ fields, submitLabel, onSubmit }) {
   const initialValues = useMemo(() => getInitialValues(fields), [fields]);
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validate = () => {
     const nextErrors = {};
@@ -27,9 +29,10 @@ function SupportForm({ fields, submitLabel }) {
     setValues((current) => ({ ...current, [name]: value }));
     setErrors((current) => ({ ...current, [name]: "" }));
     setSuccessMessage("");
+    setSubmitError("");
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const nextErrors = validate();
@@ -39,10 +42,25 @@ function SupportForm({ fields, submitLabel }) {
       return;
     }
 
-    console.log("Support form placeholder submit:", values);
-    setValues(initialValues);
-    setErrors({});
-    setSuccessMessage("Thanks. Your request has been recorded.");
+    try {
+      setIsSubmitting(true);
+      setSubmitError("");
+
+      await onSubmit(values);
+
+      setValues(initialValues);
+      setErrors({});
+      setSuccessMessage(
+        "Thanks! Your message has been sent successfully. Every submission helps improve NeuralChat.",
+      );
+    } catch (error) {
+      setSubmitError(
+        error?.response?.data?.message ||
+          "Unable to send your message right now. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -50,6 +68,12 @@ function SupportForm({ fields, submitLabel }) {
       {successMessage && (
         <div className="support-success-message" role="status">
           {successMessage}
+        </div>
+      )}
+
+      {submitError && (
+        <div className="support-field-error" role="alert">
+          {submitError}
         </div>
       )}
 
@@ -61,6 +85,7 @@ function SupportForm({ fields, submitLabel }) {
           value: values[field.name],
           onChange: handleChange,
           required: field.required,
+          disabled: isSubmitting,
           "aria-invalid": errors[field.name] ? "true" : "false",
         };
 
@@ -103,8 +128,12 @@ function SupportForm({ fields, submitLabel }) {
         );
       })}
 
-      <button type="submit" className="support-submit-button">
-        {submitLabel}
+      <button
+        type="submit"
+        className="support-submit-button"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Sending..." : submitLabel}
       </button>
     </form>
   );

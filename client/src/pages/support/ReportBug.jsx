@@ -1,5 +1,6 @@
 import SupportForm from "../../components/support/SupportForm";
 import SupportPageLayout from "../../components/support/SupportPageLayout";
+import { submitBugReport } from "../../services/supportService";
 
 const bugFields = [
   {
@@ -64,7 +65,11 @@ function ReportBug() {
       title="🐞 Report a Bug"
       description="Tell us what broke so it can be investigated in a future support workflow."
     >
-      <SupportForm fields={bugFields} submitLabel="Submit Bug Report" />
+      <SupportForm
+        fields={bugFields}
+        submitLabel="Submit Bug Report"
+        onSubmit={submitBugReport}
+      />
     </SupportPageLayout>
   );
 }

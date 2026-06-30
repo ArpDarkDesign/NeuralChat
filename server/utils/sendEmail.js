@@ -1,19 +1,26 @@
 const nodemailer = require("nodemailer");
 
-const sendEmail = async (to, subject, html) => {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+const sendEmail = async (toOrOptions, subject, html) => {
+  const options =
+    typeof toOrOptions === "object"
+      ? toOrOptions
+      : {
+          to: toOrOptions,
+          subject,
+          html,
+        };
 
   await transporter.sendMail({
     from: `"NeuralChat" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    html,
+    ...options,
   });
 };
 

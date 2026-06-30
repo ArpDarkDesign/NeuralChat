@@ -6,6 +6,7 @@ const authRoutes = require("./routes/authRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const userRoutes = require("./routes/userRoutes");
+const supportRoutes = require("./routes/supportRoutes");
 
 
 
@@ -20,6 +21,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/support", supportRoutes);
 app.get("/", (req, res) => {
   res.send("NeuralChat Backend Running 🚀");
 });

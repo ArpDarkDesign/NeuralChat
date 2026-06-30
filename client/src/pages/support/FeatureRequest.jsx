@@ -1,5 +1,6 @@
 import SupportForm from "../../components/support/SupportForm";
 import SupportPageLayout from "../../components/support/SupportPageLayout";
+import { submitFeatureRequest } from "../../services/supportService";
 
 const featureFields = [
   {
@@ -41,6 +42,12 @@ const featureFields = [
     placeholder: "Describe the feature and why it would help.",
     required: true,
   },
+  {
+    name: "benefits",
+    label: "Benefits",
+    type: "textarea",
+    placeholder: "Who benefits from this, and how?",
+  },
 ];
 
 function FeatureRequest() {
@@ -50,7 +57,11 @@ function FeatureRequest() {
       title="💡 Feature Request"
       description="Share a practical improvement idea for NeuralChat."
     >
-      <SupportForm fields={featureFields} submitLabel="Submit Feature Request" />
+      <SupportForm
+        fields={featureFields}
+        submitLabel="Submit Feature Request"
+        onSubmit={submitFeatureRequest}
+      />
     </SupportPageLayout>
   );
 }

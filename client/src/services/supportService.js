@@ -1,0 +1,17 @@
+import axios from "axios";
+
+const API = "http://localhost:5000/api/support";
+
+const submitSupportRequest = async (path, data) => {
+  const response = await axios.post(`${API}${path}`, data);
+
+  return response.data;
+};
+
+export const submitBugReport = (data) => submitSupportRequest("/bug", data);
+
+export const submitFeatureRequest = (data) =>
+  submitSupportRequest("/feature", data);
+
+export const submitContactSupport = (data) =>
+  submitSupportRequest("/contact", data);
