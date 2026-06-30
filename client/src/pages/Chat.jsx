@@ -4,6 +4,7 @@ import ChatInput from "../components/ChatInput";
 import ChatMessage from "../components/ChatMessage";
 import "./Chat.css";
 import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import TypingIndicator from "../components/TypingIndicator";
 import { generateChatTitle, sendMessageToAI } from "../services/aiService";
 import { getChats, saveChat, deleteChat } from "../services/chatService";
@@ -68,7 +69,10 @@ const signatureForSnapshot = ({ title, messages }) =>
 
 function Chat() {
   const messagesEndRef = useRef(null);
+  const messagesAreaRef = useRef(null);
+
   const [chatTheme, setChatTheme] = useState(getStoredChatThemeId);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   const [currentUser] = useState(JSON.parse(localStorage.getItem("user")));
   const welcomeMessages = createWelcomeMessages(currentUser);
@@ -406,6 +410,12 @@ function Chat() {
     }
   };
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
+
   const handleNewChat = () => {
     const reusableEmptyChat = conversations.find(
       (chat) => !hasUserMessages(chat) && chat.title === "New Chat",
@@ -512,20 +522,45 @@ function Chat() {
   }, []);
 
   useEffect(() => {
-    const container = document.querySelector(".messages-area");
+    const container = messagesAreaRef.current;
 
     if (!container) return;
 
-    const nearBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight <
-      150;
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
 
-    if (nearBottom) {
+    if (distanceFromBottom < 150) {
       messagesEndRef.current?.scrollIntoView({
         behavior: "smooth",
       });
     }
   }, [activeConversation?.messages]);
+
+  useEffect(() => {
+    const container = messagesAreaRef.current;
+
+    if (!container) return;
+
+    const handleScroll = () => {
+      const distanceFromBottom =
+        container.scrollHeight - container.scrollTop - container.clientHeight;
+
+      console.log({
+        scrollTop: container.scrollTop,
+        distanceFromBottom,
+      });
+
+      setShowScrollButton(distanceFromBottom > 180);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+
+    handleScroll();
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const loadChats = async () => {
@@ -591,7 +626,7 @@ function Chat() {
     },
     [],
   );
-
+  console.log("showScrollButton:", showScrollButton);
   return (
     <div className={`chat-page chat-theme-${chatTheme}`}>
       <Sidebar
@@ -606,7 +641,7 @@ function Chat() {
       <div className="chat-main">
         <Navbar />
 
-        <div className="messages-area">
+        <div className="messages-area" ref={messagesAreaRef}>
           {activeConversation?.messages.map((msg, index) => (
             <ChatMessage
               key={msg.id || index}
@@ -626,6 +661,16 @@ function Chat() {
 
         <ChatInput onSend={handleSend} />
       </div>
+
+      {showScrollButton && (
+        <button
+          className="scroll-bottom-btn"
+          onClick={scrollToBottom}
+          aria-label="Scroll to latest message"
+        >
+          <ChevronDown size={20} strokeWidth={2.4} />
+        </button>
+      )}
     </div>
   );
 }
