@@ -22,7 +22,7 @@ const currentTime = () =>
 const createWelcomeMessages = (user) => [
   {
     sender: "system",
-    text: `Good Evening, ${user?.name || "User"} 👋`,
+    text: `Hey, ${user?.name || "User"} 👋`,
   },
   {
     sender: "system",
