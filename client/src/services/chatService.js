@@ -15,9 +15,6 @@ export const getUserStats = async (userId) => {
 };
 
 export const saveChat = async (chat) => {
-  // console.log("saveChat() called");
-  // console.log(JSON.stringify(chat, null, 2));
-
   const response = await axios.post(API, chat);
 
   return response.data;
