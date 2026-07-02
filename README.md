@@ -8,9 +8,61 @@ A modern full-stack AI platform that combines intelligent conversations, AI-powe
 
 <br>
 
-<!-- GitHub badges can be added here after deployment -->
+<p align="center">
+
+<a href="YOUR_LIVE_DEMO_URL">
+    <img src="https://img.shields.io/badge/🌐_Live_Demo-Try_NeuralChat-2563EB?style=for-the-badge" alt="Live Demo"/>
+</a>
+
+<a href="YOUR_GITHUB_REPO">
+    <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github" alt="GitHub Repository"/>
+</a>
+
+</p>
+
+<p align="center">
+
+<img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black"/>
+
+<img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white"/>
+
+</p>
+
+<p align="center">
+
+<img src="https://img.shields.io/badge/Google_OAuth-4285F4?style=for-the-badge&logo=google&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/Groq-F55036?style=for-the-badge"/>
+
+<img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white"/>
+
+<img src="https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black"/>
+
+</p>
 
 </div>
+
+---
+
+<p align="center">
+
+NeuralChat is a full-stack AI application built to explore what a modern conversational platform should feel like—not only in terms of intelligence, but also in design, usability, responsiveness, and performance.
+
+Rather than recreating an existing AI chatbot, the goal was to build an experience that feels polished from end to end. Every interface, interaction, animation, and workflow has been thoughtfully designed to provide a fast, intuitive, and enjoyable user experience while following scalable full-stack development practices.
+
+Powered by Groq AI, Cloudinary, MongoDB Atlas, Google OAuth, and modern web technologies, NeuralChat demonstrates how multiple services can be integrated into a cohesive production-ready application.
+
+</p>
 
 ---
 
