@@ -25,7 +25,7 @@ const termsSections = [
   {
     icon: UserX,
     title: "Account Termination",
-    text: "Accounts may be removed when users delete them or when platform abuse requires access to be restricted.",
+    text: "Accounts will be removed when users delete them or when platform abuse requires access to be restricted.",
   },
 ];
 
