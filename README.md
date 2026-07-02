@@ -10,12 +10,12 @@ A modern full-stack AI platform that combines intelligent conversations, AI-powe
 
 <p align="center">
 
-<a href="YOUR_LIVE_DEMO_URL">
-    <img src="https://img.shields.io/badge/🌐_Live_Demo-Try_NeuralChat-2563EB?style=for-the-badge" alt="Live Demo"/>
+<a href="https://arp-neuralchat.vercel.app">
+    <img src="https://img.shields.io/badge/🌐_Live_Demo-Try_NeuralChat-2563EB?style=for-the-badge" alt="Live Website"/>
 </a>
 
-<a href="YOUR_GITHUB_REPO">
-    <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github" alt="GitHub Repository"/>
+<a href="https://github.com/ArpDarkDesign/NeuralChat">
+    <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github" alt="Source Code"/>
 </a>
 
 </p>
@@ -66,18 +66,6 @@ Powered by Groq AI, Cloudinary, MongoDB Atlas, Google OAuth, and modern web tech
 
 ---
 
-<p align="center">
-
-NeuralChat is a full-stack AI application built to explore what a modern conversational platform should feel like—not only in terms of intelligence, but also in design, usability, responsiveness, and performance.
-
-Instead of recreating an existing AI chatbot, the goal was to build an experience that feels polished from end to end. Every interface, interaction, animation, and workflow has been designed to provide a smooth and enjoyable user experience while following scalable full-stack development practices.
-
-From real-time AI conversations and image generation to secure authentication, customizable themes, responsive layouts, and integrated support tools, NeuralChat demonstrates how modern web technologies can be combined into a production-ready application.
-
-</p>
-
----
-
 # 📑 Table of Contents
 
 - [🚀 Quick Preview](#-quick-preview)
@@ -93,7 +81,31 @@ From real-time AI conversations and image generation to secure authentication, c
 
 ---
 
+# 💡 Why I Built NeuralChat
+
+NeuralChat began as a personal challenge to build an AI application that goes beyond simply answering prompts.
+
+The goal was to create an experience that feels polished from the very first interaction—combining intelligent conversations, AI image generation, secure authentication, responsive design, and modern interface principles into a single production-ready application.
+
+Throughout the project, the focus remained on writing clean, maintainable code while designing an interface that feels intuitive, fast, and enjoyable to use. Every feature was built with scalability, user experience, and real-world deployment in mind.
+
+---
+
 # 🚀 Quick Preview
+
+A quick glimpse into the core experience of NeuralChat.
+
+From intelligent conversations to AI-powered image generation, every interaction has been designed with speed, clarity, and usability in mind.
+
+---
+
+# 🌐 Live Demo
+
+Experience NeuralChat live:
+
+👉 https://arp-neuralchat.vercel.app
+
+---
 
 ### 💬 AI Conversation Experience
 
@@ -113,7 +125,9 @@ From real-time AI conversations and image generation to secure authentication, c
 
 # ✨ Features
 
-NeuralChat combines modern AI capabilities with a premium user experience to create an application that feels both powerful and intuitive.
+NeuralChat combines powerful AI capabilities with thoughtful interface design to deliver an experience that feels modern, responsive, and production-ready.
+
+Every feature has been designed to solve a real user need while maintaining consistency across the entire application.
 
 | Feature                      | Description                                                                                                                                               |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -126,11 +140,13 @@ NeuralChat combines modern AI capabilities with a premium user experience to cre
 | 👤 Profile Dashboard         | Personalize your account, manage themes, and view profile information through a dedicated dashboard.                                                      |
 | 🛟 Integrated Support Center | Built-in pages for reporting bugs, requesting features, privacy information, terms, and contact support.                                                  |
 | 📱 Fully Responsive Design   | Optimized layouts for desktop, tablet, and mobile devices with adaptive navigation.                                                                       |
-| ⚡ Premium User Experience   | Glassmorphism, smooth animations, custom dialogs, floating navigation, polished interactions, and thoughtful micro-animations throughout the application. |
+| ⚡ Polished User Experience  | Glassmorphism, smooth animations, custom dialogs, floating navigation, polished interactions, and thoughtful micro-animations throughout the application. |
 
 ---
 
 # 🖼️ Application Showcase
+
+A visual walkthrough of the major features that make up the NeuralChat experience.
 
 ## 🔐 Authentication Experience
 
@@ -164,7 +180,7 @@ NeuralChat combines modern AI capabilities with a premium user experience to cre
 
 ---
 
-## 📱 Mobile Responsive Design
+## 📱 Mobile Experience
 
 <p align="center">
   <img src="./README/images/mobile-responsive.png" alt="Mobile Responsive Layout" width="35%">
@@ -172,28 +188,101 @@ NeuralChat combines modern AI capabilities with a premium user experience to cre
 
 ---
 
+# 🏗️ Architecture Overview
+
+NeuralChat follows a modern client-server architecture where a React frontend communicates with an Express backend. The backend manages authentication, AI interactions, database operations, and third-party integrations while the frontend delivers a fast, responsive user experience.
+
+```mermaid
+flowchart LR
+
+    U([User])
+
+    subgraph Frontend["Frontend (Vercel)"]
+        A[React + Vite]
+        B[React Router]
+        C[UI Components]
+    end
+
+    subgraph Backend["Backend (Render)"]
+        D[Express API]
+        E[Authentication]
+        F[AI Services]
+        G[Chat Services]
+    end
+
+    subgraph Database
+        H[(MongoDB Atlas)]
+    end
+
+    subgraph ExternalServices["External Services"]
+        I[Groq AI]
+        J[Pollinations AI]
+        K[Google OAuth]
+        L[Cloudinary]
+        M[Gmail SMTP]
+    end
+
+    U --> A
+
+    A --> D
+
+    D --> E
+    D --> F
+    D --> G
+
+    E --> H
+    G --> H
+
+    F --> I
+    F --> J
+
+    E --> K
+
+    G --> L
+
+    E --> M
+```
+
+---
+
 # 🛠️ Technology Stack
 
-NeuralChat is built using a modern JavaScript stack focused on scalability, performance, maintainability, and developer experience.
+NeuralChat is built using a modern full-stack JavaScript ecosystem focused on scalability, maintainability, performance, and real-world deployment.
 
-| Category              | Technologies                                |
-| --------------------- | ------------------------------------------- |
-| **Frontend**          | React, Vite, React Router, Axios            |
-| **Backend**           | Node.js, Express.js                         |
-| **Database**          | MongoDB Atlas, Mongoose                     |
-| **Authentication**    | JWT Authentication, Google OAuth 2.0        |
-| **AI Services**       | Groq API, Pollinations AI                   |
-| **Cloud Storage**     | Cloudinary                                  |
-| **Email Services**    | Nodemailer, Gmail SMTP                      |
-| **Styling**           | CSS3, Responsive Design, Glassmorphism      |
-| **Development Tools** | Git, GitHub, ESLint                         |
-| **Deployment Ready**  | Environment Variables, Modular Architecture |
+Each technology has been selected to provide a production-ready architecture while keeping the developer experience clean and efficient.
+
+| Category              | Technologies                           |
+| --------------------- | -------------------------------------- |
+| **Frontend**          | React, Vite, React Router, Axios       |
+| **Backend**           | Node.js, Express.js                    |
+| **Database**          | MongoDB Atlas, Mongoose                |
+| **Authentication**    | JWT Authentication, Google OAuth 2.0   |
+| **AI Services**       | Groq API, Pollinations AI              |
+| **Cloud Storage**     | Cloudinary                             |
+| **Email Services**    | Nodemailer, Gmail SMTP                 |
+| **Styling**           | CSS3, Responsive Design, Glassmorphism |
+| **Development Tools** | Git, GitHub, ESLint                    |
+| **Deployment**        | Vercel, Render, Environment Variables  |
+
+---
+
+# 🚀 Deployment
+
+| Service        | Platform      |
+| -------------- | ------------- |
+| Frontend       | Vercel        |
+| Backend        | Render        |
+| Database       | MongoDB Atlas |
+| Image Storage  | Cloudinary    |
+| Authentication | Google OAuth  |
 
 ---
 
 # 📂 Project Structure
 
-The project follows a modular client-server architecture, making it easy to maintain, extend, and scale.
+NeuralChat follows a modular client-server architecture that separates frontend, backend, and shared responsibilities into well-defined modules.
+
+This structure makes the project easier to understand, maintain, and extend as new features are introduced.
 
 ```text
 NeuralChat/
@@ -293,7 +382,7 @@ npm install
 
 ---
 
-## 3. Configure environment variables
+## 3. Configure both frontend and backend environment variables.
 
 Create a local environment file from the provided template.
 
@@ -368,12 +457,12 @@ The following ideas are planned as future improvements for NeuralChat.
 
 ### Future Ideas
 
-- [ ] Streaming AI responses
+- [ ] Markdown message rendering
 - [ ] Voice conversations
-- [ ] AI memory improvements
+- [ ] Long-term AI memory
 - [ ] Chat export
 - [ ] Progressive Web App (PWA)
-- [ ] Desktop application
+- [ ] Native desktop application
 - [ ] Team workspaces
 
 ---
@@ -392,11 +481,28 @@ Constructive feedback is always appreciated.
 
 # 👨‍💻 Author
 
-Developed and maintained by **ArpDarkDesign**.
+Designed, developed, and deployed by Arp.
 
 NeuralChat was created as a personal full-stack project to explore modern AI application development, user experience design, and scalable software architecture.
 
 If you enjoyed exploring the project, consider leaving a ⭐ on the repository. It helps others discover the project and supports its continued development.
+
+---
+
+# ❤️ Acknowledgements
+
+NeuralChat is a personal project built and maintained by **Arp**.
+
+During development, several AI assistants played an important role in brainstorming ideas, reviewing implementations, debugging deployment issues, improving documentation, and exploring different architectural approaches.
+
+Special thanks to:
+
+- 🤖 ChatGPT
+- ⚡ Cursor
+- 🧠 Claude
+- 🛠️ OpenAI Codex
+
+While these tools accelerated development, all project planning, design decisions, implementation, testing, deployment, and final code integration were carried out by the project author.
 
 ---
 
