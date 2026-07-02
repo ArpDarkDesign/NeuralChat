@@ -2,7 +2,6 @@ const IMAGE_URLS_MARKER = "\x00NEURALCHAT_IMAGE_URLS:";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-
 const parseStreamContent = (fullResponse) => {
   const markerIndex = fullResponse.indexOf(IMAGE_URLS_MARKER);
 
@@ -49,10 +48,7 @@ export const sendMessageToAI = async (
         })()
       : JSON.stringify({ message, history });
 
-  // const response = await fetch("http://localhost:5000/api/ai/chat", {
-
-const response = await fetch(`${API_URL}/api/ai/chat`, {
-
+  const response = await fetch(`${API_URL}/api/ai/chat`, {
     method: "POST",
     headers:
       images.length > 0 ? undefined : { "Content-Type": "application/json" },
