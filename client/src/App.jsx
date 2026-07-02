@@ -5,7 +5,7 @@ import AppRoutes from "./routes/AppRoutes";
 function App() {
   return (
     <ToastProvider>
-      <Cursor />
+     {window.matchMedia("(hover: hover) and (pointer: fine)").matches && <Cursor />}
       <AppRoutes />
     </ToastProvider>
   );
