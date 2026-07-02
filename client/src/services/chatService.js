@@ -2,7 +2,7 @@ import axios from "axios";
 
 // const API = "http://localhost:5000/api/chats";
 
-const API = `${import.meta.env.VITE_API_URL}/api/chat`;
+const API = `${import.meta.env.VITE_API_URL}/api/chats`;
 
 export const getChats = async (userId) => {
   const response = await axios.get(`${API}/${userId}`);
