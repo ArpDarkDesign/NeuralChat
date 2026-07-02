@@ -80,6 +80,14 @@ NeuralChat combines modern AI capabilities with a premium user experience to cre
 
 # 🖼️ Application Showcase
 
+## 🔐 Authentication Experience
+
+<p align="center">
+  <img src="./README/images/login-page.png" alt="Login Page" width="100%">
+</p>
+
+---
+
 ## 👤 Profile Dashboard
 
 <p align="center">
@@ -100,14 +108,6 @@ NeuralChat combines modern AI capabilities with a premium user experience to cre
 
 <p align="center">
   <img src="./README/images/support-center.png" alt="Support Center" width="100%">
-</p>
-
----
-
-## 🔐 Authentication Experience
-
-<p align="center">
-  <img src="./README/images/login-page.png" alt="Login Page" width="100%">
 </p>
 
 ---
@@ -337,10 +337,6 @@ If you discover a bug or have an idea that could improve the project, please ope
 Constructive feedback is always appreciated.
 
 ---
-
-
-
-
 
 # 👨‍💻 Author
 
