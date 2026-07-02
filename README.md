@@ -37,7 +37,6 @@ From real-time AI conversations and image generation to secure authentication, c
 - [🔐 Environment Variables](#-environment-variables)
 - [📌 Roadmap](#-roadmap)
 - [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
 - [👨‍💻 Author](#-author)
 
 ---
@@ -188,7 +187,6 @@ NeuralChat/
 │   └── server.js
 │
 ├── .gitignore
-├── LICENSE
 └── README.md
 ```
 
@@ -340,13 +338,9 @@ Constructive feedback is always appreciated.
 
 ---
 
-# 📄 License
 
-This project is licensed under the MIT License.
 
-See the `LICENSE` file for more information.
 
----
 
 # 👨‍💻 Author
 
