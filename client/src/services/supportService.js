@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api/support";
+// const API = "http://localhost:5000/api/support";
+
+const API = `${import.meta.env.VITE_API_URL}/api/support`;
 
 const submitSupportRequest = async (path, data) => {
   const response = await axios.post(`${API}${path}`, data);
