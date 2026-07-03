@@ -1,6 +1,6 @@
 const sendEmail = require("../utils/sendEmail");
 
-const SUPPORT_EMAIL = process.env.EMAIL_USER;
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const fieldLabels = {
