@@ -1,17 +1,6 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-transporter
-  .verify()
-  .then(() => console.log("✅ SMTP Ready"))
-  .catch((err) => console.error("❌ SMTP Verify Error:", err));
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async (toOrOptions, subject, html) => {
   const options =
@@ -23,10 +12,14 @@ const sendEmail = async (toOrOptions, subject, html) => {
           html,
         };
 
-  await transporter.sendMail({
-    from: `"NeuralChat" <${process.env.EMAIL_USER}>`,
+  const { error } = await resend.emails.send({
+    from: process.env.EMAIL_FROM,
     ...options,
   });
+
+  if (error) {
+    throw error;
+  }
 };
 
 module.exports = sendEmail;

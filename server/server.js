@@ -8,9 +8,6 @@ const chatRoutes = require("./routes/chatRoutes");
 const userRoutes = require("./routes/userRoutes");
 const supportRoutes = require("./routes/supportRoutes");
 
-
-
-
 const connectDB = require("./config/db");
 
 const app = express();
