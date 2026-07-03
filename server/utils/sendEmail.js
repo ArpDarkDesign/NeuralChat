@@ -8,6 +8,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+transporter
+  .verify()
+  .then(() => console.log("✅ SMTP Ready"))
+  .catch((err) => console.error("❌ SMTP Verify Error:", err));
+
 const sendEmail = async (toOrOptions, subject, html) => {
   const options =
     typeof toOrOptions === "object"
