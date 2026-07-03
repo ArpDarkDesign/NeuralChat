@@ -11,6 +11,8 @@ const sendEmail = async (toOrOptions, subject, html) => {
           subject,
           html,
         };
+        console.log("EMAIL_FROM =", process.env.EMAIL_FROM);
+console.log("TO =", options.to);
 
   const { error } = await resend.emails.send({
     from: process.env.EMAIL_FROM,
