@@ -15,43 +15,130 @@ const loginStatusMessages = [
   "🚀 Almost ready...",
 ];
 
-let hasWarmedBackend = false;
+const googleStatusMessages = [
+  "🔐 Initializing secure session...",
+  "⚡ Waking AI services...",
+  "🧠 Preparing your workspace...",
+  "💬 Loading conversations...",
+  "🚀 Redirecting to Google...",
+];
+
+const loadingContent = {
+  login: {
+    label: "Authenticating with NeuralChat",
+    title: "Authenticating...",
+    messages: loginStatusMessages,
+  },
+  google: {
+    label: "Preparing Google Sign-In with NeuralChat",
+    title: "Preparing secure connection...",
+    messages: googleStatusMessages,
+  },
+};
+
+let backendWarmupPromise = null;
+
+const warmBackend = () => {
+  if (!backendWarmupPromise) {
+    backendWarmupPromise = axios.get(`${import.meta.env.VITE_API_URL}/`).catch(() => {});
+  }
+
+  return backendWarmupPromise;
+};
 
 function Login() {
   const navigate = useNavigate();
   const showToast = useToast();
   const loginInFlight = useRef(false);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const googleSignInInFlight = useRef(false);
+  const googleCredentialExchangeInFlight = useRef(false);
+  const googleWarmupTimer = useRef(null);
+  const googleFallbackTimer = useRef(null);
+  const [loadingMode, setLoadingMode] = useState(null);
   const [statusIndex, setStatusIndex] = useState(0);
   const [showColdStartNotice, setShowColdStartNotice] = useState(false);
+  const isLoading = loadingMode !== null;
+  const activeLoadingContent = loadingMode
+    ? loadingContent[loadingMode]
+    : loadingContent.login;
 
   useEffect(() => {
-    if (hasWarmedBackend) return;
-
-    hasWarmedBackend = true;
-    axios.get(import.meta.env.VITE_API_URL).catch(() => {});
+    warmBackend();
   }, []);
 
   useEffect(() => {
-    if (!isLoggingIn) return;
+    if (!loadingMode) return;
 
     const statusTimer = setInterval(() => {
       setStatusIndex((currentIndex) =>
-        currentIndex === loginStatusMessages.length - 1 ? 0 : currentIndex + 1,
+        currentIndex === activeLoadingContent.messages.length - 1
+          ? 0
+          : currentIndex + 1,
       );
     }, 2500);
 
     const coldStartTimer = setTimeout(() => {
-      setShowColdStartNotice(true);
+      if (loadingMode === "login") {
+        setShowColdStartNotice(true);
+      }
     }, 8000);
 
     return () => {
       clearInterval(statusTimer);
       clearTimeout(coldStartTimer);
     };
-  }, [isLoggingIn]);
+  }, [activeLoadingContent.messages.length, loadingMode]);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(googleWarmupTimer.current);
+      clearTimeout(googleFallbackTimer.current);
+    };
+  }, []);
+
+  const warmGoogleSignIn = () => {
+    if (googleSignInInFlight.current) return;
+
+    googleSignInInFlight.current = true;
+    setStatusIndex(0);
+    setShowColdStartNotice(false);
+    setLoadingMode("google");
+
+    const warmupRequest = warmBackend();
+
+    const warmupTimeout = new Promise((resolve) => {
+      googleWarmupTimer.current = setTimeout(resolve, 3000);
+    });
+
+    Promise.race([warmupRequest, warmupTimeout]).finally(() => {
+      clearTimeout(googleWarmupTimer.current);
+      clearTimeout(googleFallbackTimer.current);
+
+      googleSignInInFlight.current = false;
+
+      if (!googleCredentialExchangeInFlight.current) {
+        setLoadingMode((currentMode) =>
+          currentMode === "google" ? null : currentMode,
+        );
+      }
+    });
+
+    googleFallbackTimer.current = setTimeout(() => {
+      googleSignInInFlight.current = false;
+      setLoadingMode((currentMode) =>
+        currentMode === "google" ? null : currentMode,
+      );
+    }, 30000);
+  };
 
   const handleGoogleSuccess = async (credentialResponse) => {
+    clearTimeout(googleFallbackTimer.current);
+    googleSignInInFlight.current = true;
+    googleCredentialExchangeInFlight.current = true;
+    setStatusIndex(0);
+    setShowColdStartNotice(false);
+    setLoadingMode("google");
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/google-login`,
@@ -69,6 +156,9 @@ function Login() {
       navigate("/chat");
     } catch (error) {
       console.log(error);
+      googleSignInInFlight.current = false;
+      googleCredentialExchangeInFlight.current = false;
+      setLoadingMode(null);
     }
   };
   const [showPassword, setShowPassword] = useState(false);
@@ -92,7 +182,7 @@ function Login() {
     loginInFlight.current = true;
     setStatusIndex(0);
     setShowColdStartNotice(false);
-    setIsLoggingIn(true);
+    setLoadingMode("login");
 
     try {
       const response = await loginUser(formData);
@@ -113,7 +203,7 @@ function Login() {
       loginInFlight.current = false;
       setStatusIndex(0);
       setShowColdStartNotice(false);
-      setIsLoggingIn(false);
+      setLoadingMode(null);
     }
   };
 
@@ -121,8 +211,8 @@ function Login() {
     <div className="login-page">
       <div
         className="login-content"
-        aria-hidden={isLoggingIn}
-        inert={isLoggingIn ? "" : undefined}
+        aria-hidden={isLoading}
+        inert={isLoading ? "" : undefined}
       >
         <div className="hero-section">
           <span className="badge">AI Powered Platform</span>
@@ -160,7 +250,7 @@ function Login() {
               placeholder="Email Address"
               value={formData.email}
               onChange={handleChange}
-              disabled={isLoggingIn}
+              disabled={isLoading}
             />
             <div className="password-wrapper">
               <input
@@ -169,14 +259,14 @@ function Login() {
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
-                disabled={isLoggingIn}
+                disabled={isLoading}
               />
 
               <button
                 type="button"
                 className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
-                disabled={isLoggingIn}
+                disabled={isLoading}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -185,7 +275,7 @@ function Login() {
 
             <div className="login-options">
               <label>
-                <input type="checkbox" disabled={isLoggingIn} />
+                <input type="checkbox" disabled={isLoading} />
                 Remember me
               </label>
               <a
@@ -202,8 +292,8 @@ function Login() {
             <button
               type="submit"
               className="signin-btn"
-              disabled={isLoggingIn}
-              aria-busy={isLoggingIn}
+              disabled={isLoading}
+              aria-busy={isLoading && loadingMode === "login"}
             >
               Sign In
             </button>
@@ -212,10 +302,25 @@ function Login() {
               <span>OR</span>
             </div>
 
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => console.log("Google Login Failed")}
-            />
+            <div
+              className={`google-login-wrapper${
+                loadingMode === "google" ? " is-disabled" : ""
+              }`}
+              aria-disabled={loadingMode === "google"}
+              aria-busy={loadingMode === "google"}
+            >
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
+                  console.log("Google Login Failed");
+                  googleSignInInFlight.current = false;
+                  clearTimeout(googleFallbackTimer.current);
+                  setLoadingMode(null);
+                }}
+                click_listener={warmGoogleSignIn}
+                text="continue_with"
+              />
+            </div>
           </form>
 
           <div className="register-link">
@@ -233,33 +338,35 @@ function Login() {
         </div>
       </div>
 
-      {isLoggingIn && (
+      {isLoading && (
         <div
           className="login-loading-overlay"
           role="status"
           aria-live="polite"
-          aria-label="Authenticating with NeuralChat"
+          aria-label={activeLoadingContent.label}
         >
           <div className="login-loading-panel">
             <div className="loading-logo" aria-hidden="true">
               ⚡
             </div>
             <h2>NeuralChat</h2>
-            <p className="loading-title">Authenticating...</p>
+            <p className="loading-title">{activeLoadingContent.title}</p>
             <p key={statusIndex} className="loading-status" aria-live="polite">
-              {loginStatusMessages[statusIndex]}
+              {activeLoadingContent.messages[statusIndex]}
             </p>
             <div className="loading-progress" aria-hidden="true">
               <span></span>
             </div>
-            <p
-              className={`cold-start-notice${
-                showColdStartNotice ? " visible" : ""
-              }`}
-            >
-              First launch may take a little longer while the secure server
-              wakes up.
-            </p>
+            {loadingMode === "login" && (
+              <p
+                className={`cold-start-notice${
+                  showColdStartNotice ? " visible" : ""
+                }`}
+              >
+                First launch may take a little longer while the secure server
+                wakes up.
+              </p>
+            )}
           </div>
         </div>
       )}

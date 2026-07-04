@@ -183,6 +183,15 @@
   cursor: pointer;
 }
 
+.google-login-wrapper {
+  min-height: 40px;
+}
+
+.google-login-wrapper.is-disabled {
+  pointer-events: none;
+  opacity: 0.72;
+}
+
 .register-link {
   text-align: center;
 
