@@ -502,7 +502,7 @@ Special thanks to:
 - 🧠 Claude
 - 🛠️ OpenAI Codex
 
-While these tools accelerated development, all project planning, design decisions, implementation, testing, deployment, and final code integration were carried out by the project author.
+While these tools accelerated development, all project planning, design decisions, implementation, testing, deployment, and final code integration were carried out by me.
 
 ---
 
