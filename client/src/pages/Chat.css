@@ -428,23 +428,13 @@
 
 .bot-bubble {
   width: fit-content;
-  min-width: min(320px, 90%);
-  max-width: min(700px, 100%);
-  background: var(--chat-bot-bg);
-  border: 1px solid var(--chat-border);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-}
-
-/* .bot-bubble {
-  width: fit-content;
   min-width: min(300px, 90%);
   max-width: 100%;
   background: var(--chat-bot-bg);
   border: 1px solid var(--chat-border);
   backdrop-filter: blur(12px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-} */
+}
 .user-bubble {
   background: var(--chat-user-bg);
   color: var(--chat-text);
@@ -884,24 +874,13 @@ body[data-chat-theme="solar-nexus"] .custom-cursor {
 }
 
 .generated-image-shell {
-  width: 100%;
-  max-width: 520px;
-  aspect-ratio: 1;
-  position: relative;
-  overflow: hidden;
-  border-radius: 16px;
-  background: rgba(10, 14, 24, 0.86);
-}
-
-
-/* .generated-image-shell {
   width: min(100%, 520px);
   aspect-ratio: 1 / 1;
   position: relative;
   overflow: hidden;
   border-radius: 16px;
   background: rgba(10, 14, 24, 0.86);
-} */
+}
 
 .generated-image-loader,
 .generated-image-shell .generated-image,
@@ -1255,18 +1234,6 @@ body[data-chat-theme="solar-nexus"] .custom-cursor {
 }
 
 @media (max-width: 767px) {
-
-
-.generated-image-container {
-  width: 100%;
-}
-
-.generated-image-shell {
-  max-width: 100%;
-}
-
-
-
   .navbar {
     padding: 14px 14px;
   }
@@ -1339,22 +1306,6 @@ body[data-chat-theme="solar-nexus"] .custom-cursor {
 }
 
 @media (max-width: 480px) {
-
-.generated-image-container {
-  width: 100%;
-}
-
-.generated-image-shell {
-  width: 100%;
-  max-width: 100%;
-}
-
-.image-download-btn {
-  opacity: 1;
-  transform: none;
-}
-
-
   .navbar {
     padding: 12px;
   }
