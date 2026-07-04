@@ -1292,7 +1292,7 @@ body[data-chat-theme="solar-nexus"] .custom-cursor {
   .bot-bubble,
   .user-bubble {
     max-width: 94%;
-    min-width: 0;
+    /* min-width: 0; */
   }
 
   .chat-input-container {
