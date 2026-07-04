@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = `${import.meta.env.VITE_API_URL}/api/user`;
+const API = `${import.meta.env.VITE_API_URL}/api/users`;
 
 export const uploadAvatar = async (userId, file) => {
   const formData = new FormData();
