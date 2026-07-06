@@ -9,19 +9,23 @@ import { useToast } from "../components/ui/useDialog";
 import NeuralChatLoadingOverlay from "../components/NeuralChatLoadingOverlay";
 
 const loginStatusMessages = [
-  "🔐 Verifying your account...",
-  "🧠 Preparing your AI workspace...",
-  "💬 Loading your conversations...",
-  "⚡ Connecting AI services...",
-  "🚀 Almost ready...",
+  "Connecting to NeuralChat...",
+  "Establishing secure connection...",
+  "Restoring your AI workspace...",
+  "Loading previous conversations...",
+  "Synchronizing your session...",
+  "Preparing AI services...",
+  "Almost there...",
 ];
 
 const googleStatusMessages = [
-  "🔐 Initializing secure session...",
-  "⚡ Waking AI services...",
-  "🧠 Preparing your workspace...",
-  "💬 Loading conversations...",
-  "🚀 Redirecting to Google...",
+  "Connecting to NeuralChat...",
+  "Establishing secure connection...",
+  "Restoring your AI workspace...",
+  "Loading previous conversations...",
+  "Synchronizing your session...",
+  "Preparing AI services...",
+  "Almost there...",
 ];
 
 const loadingContent = {
@@ -56,7 +60,6 @@ function Login() {
   const googleWarmupTimer = useRef(null);
   const googleFallbackTimer = useRef(null);
   const [loadingMode, setLoadingMode] = useState(null);
-  const [showColdStartNotice, setShowColdStartNotice] = useState(false);
   const isLoading = loadingMode !== null;
   const activeLoadingContent = loadingMode
     ? loadingContent[loadingMode]
@@ -65,20 +68,6 @@ function Login() {
   useEffect(() => {
     warmBackend();
   }, []);
-
-  useEffect(() => {
-    if (!loadingMode) return;
-
-    const coldStartTimer = setTimeout(() => {
-      if (loadingMode === "login") {
-        setShowColdStartNotice(true);
-      }
-    }, 8000);
-
-    return () => {
-      clearTimeout(coldStartTimer);
-    };
-  }, [loadingMode]);
 
   useEffect(() => {
     return () => {
@@ -91,7 +80,6 @@ function Login() {
     if (googleSignInInFlight.current) return;
 
     googleSignInInFlight.current = true;
-    setShowColdStartNotice(false);
     setLoadingMode("google");
 
     const warmupRequest = warmBackend();
@@ -125,7 +113,6 @@ function Login() {
     clearTimeout(googleFallbackTimer.current);
     googleSignInInFlight.current = true;
     googleCredentialExchangeInFlight.current = true;
-    setShowColdStartNotice(false);
     setLoadingMode("google");
 
     try {
@@ -169,7 +156,6 @@ function Login() {
     if (loginInFlight.current) return;
 
     loginInFlight.current = true;
-    setShowColdStartNotice(false);
     setLoadingMode("login");
 
     try {
@@ -189,7 +175,6 @@ function Login() {
       });
     } finally {
       loginInFlight.current = false;
-      setShowColdStartNotice(false);
       setLoadingMode(null);
     }
   };
@@ -330,18 +315,6 @@ function Login() {
           label={activeLoadingContent.label}
           title={activeLoadingContent.title}
           messages={activeLoadingContent.messages}
-          footer={
-            loadingMode === "login" && (
-              <p
-                className={`cold-start-notice${
-                  showColdStartNotice ? " visible" : ""
-                }`}
-              >
-                First launch may take a little longer while the secure server
-                wakes up.
-              </p>
-            )
-          }
         />
       )}
     </div>

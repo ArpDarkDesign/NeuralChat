@@ -70,9 +70,11 @@ const signatureForSnapshot = ({ title, messages }) =>
 
 const chatRestoreStatusMessages = [
   "Connecting to NeuralChat...",
-  "Restoring conversations...",
-  "Loading your workspace...",
-  "Syncing your chats...",
+  "Establishing secure connection...",
+  "Restoring your AI workspace...",
+  "Loading previous conversations...",
+  "Synchronizing your session...",
+  "Preparing AI services...",
   "Almost there...",
 ];
 

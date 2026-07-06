@@ -324,6 +324,8 @@
     0 24px 80px rgba(2, 6, 23, 0.55),
     0 0 42px rgba(139, 92, 246, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  animation: loadingPanelFloat 6s ease-in-out infinite;
 }
 
 .loading-logo {
@@ -379,6 +381,8 @@
   width: min(100%, 280px);
   height: 8px;
 
+  position: relative;
+
   overflow: hidden;
 
   border-radius: 999px;
@@ -386,6 +390,22 @@
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.08),
     0 0 18px rgba(37, 99, 235, 0.18);
+}
+
+.loading-progress::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.18),
+    transparent
+  );
+
+  animation: loadingProgressShimmer 2.2s ease-in-out infinite;
 }
 
 .loading-progress span {
@@ -400,27 +420,120 @@
   animation: loadingBarSweep 1.25s ease-in-out infinite;
 }
 
-.cold-start-notice {
-  max-width: 310px;
-  min-height: 36px;
-  margin: 22px 0 0;
+.loading-reassurance {
+  width: min(100%, 340px);
+  max-height: 0;
+  margin-top: 0;
 
-  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 
-  font-size: 0.86rem;
-  line-height: 1.45;
+  overflow: hidden;
+
+  opacity: 0;
+  transform: translateY(8px);
+
+  transition:
+    max-height 0.45s ease,
+    margin-top 0.45s ease,
+    opacity 0.4s ease,
+    transform 0.4s ease;
+}
+
+.loading-reassurance.visible {
+  max-height: 430px;
+  margin-top: 22px;
+
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.loading-reassurance-card {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 10px;
+
+  padding: 14px;
+
+  text-align: left;
+
+  background: rgba(15, 23, 42, 0.54);
+  border: 1px solid rgba(196, 181, 253, 0.16);
+  border-radius: 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  animation: loadingStatusFade 0.42s ease-out both;
+}
+
+.loading-reassurance-card.patience {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+
+  overflow: hidden;
 
   opacity: 0;
   transform: translateY(6px);
 
   transition:
+    max-height 0.4s ease,
+    padding 0.4s ease,
     opacity 0.35s ease,
     transform 0.35s ease;
 }
 
-.cold-start-notice.visible {
+.loading-reassurance-card.patience.visible {
+  max-height: 150px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+
   opacity: 1;
   transform: translateY(0);
+}
+
+.loading-reassurance-icon {
+  width: 32px;
+  height: 32px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 12px;
+  background: rgba(139, 92, 246, 0.18);
+
+  font-size: 1rem;
+
+  animation: loadingIconPulse 2.4s ease-in-out infinite;
+}
+
+.loading-reassurance h3 {
+  margin: 0 0 6px;
+
+  color: #f8fafc;
+
+  font-size: 0.9rem;
+  line-height: 1.25;
+}
+
+.loading-reassurance p {
+  margin: 0;
+
+  color: #b6c2d9;
+
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.loading-reassurance p + p {
+  margin-top: 6px;
+}
+
+.loading-reassurance-footer {
+  color: #7f8da8;
+
+  font-size: 0.74rem;
+  line-height: 1.35;
 }
 
 @keyframes loginOverlayFadeIn {
@@ -430,6 +543,17 @@
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes loadingPanelFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
   }
 }
 
@@ -446,6 +570,19 @@
   }
 }
 
+@keyframes loadingIconPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(139, 92, 246, 0);
+    filter: brightness(1);
+  }
+
+  50% {
+    box-shadow: 0 0 18px rgba(139, 92, 246, 0.28);
+    filter: brightness(1.15);
+  }
+}
+
 @keyframes loadingStatusFade {
   from {
     opacity: 0;
@@ -455,6 +592,16 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes loadingProgressShimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(120%);
   }
 }
 
@@ -504,5 +651,23 @@
 
   .login-loading-panel h2 {
     font-size: 1.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-loading-overlay,
+  .login-loading-panel,
+  .loading-logo,
+  .loading-status,
+  .loading-progress::after,
+  .loading-progress span,
+  .loading-reassurance-card,
+  .loading-reassurance-icon {
+    animation: none;
+  }
+
+  .loading-reassurance,
+  .loading-reassurance-card.patience {
+    transition: none;
   }
 }
