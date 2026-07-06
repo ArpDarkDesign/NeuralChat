@@ -6,6 +6,7 @@ import "./Chat.css";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import TypingIndicator from "../components/TypingIndicator";
+import NeuralChatLoadingOverlay from "../components/NeuralChatLoadingOverlay";
 import { generateChatTitle, sendMessageToAI } from "../services/aiService";
 import { getChats, saveChat, deleteChat } from "../services/chatService";
 import { getStoredChatThemeId } from "../theme/chatThemes";
@@ -67,6 +68,14 @@ const hasLocalImageUrls = (chat) =>
 const signatureForSnapshot = ({ title, messages }) =>
   JSON.stringify({ title, messages });
 
+const chatRestoreStatusMessages = [
+  "Connecting to NeuralChat...",
+  "Restoring conversations...",
+  "Loading your workspace...",
+  "Syncing your chats...",
+  "Almost there...",
+];
+
 function Chat() {
   const messagesEndRef = useRef(null);
   const messagesAreaRef = useRef(null);
@@ -76,6 +85,9 @@ function Chat() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [currentUser] = useState(JSON.parse(localStorage.getItem("user")));
+  const [isInitialChatLoading, setIsInitialChatLoading] = useState(
+    Boolean(currentUser),
+  );
   const welcomeMessages = createWelcomeMessages(currentUser);
 
   const createBlankChat = () =>
@@ -562,7 +574,10 @@ function Chat() {
 
   useEffect(() => {
     const loadChats = async () => {
-      if (!currentUser) return;
+      if (!currentUser) {
+        setIsInitialChatLoading(false);
+        return;
+      }
 
       try {
         const chats = await getChats(currentUser.id);
@@ -574,6 +589,8 @@ function Chat() {
         }
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsInitialChatLoading(false);
       }
     };
 
@@ -655,6 +672,7 @@ function Chat() {
         className="sidebar-overlay"
         onClick={() => setIsSidebarOpen(false)}
         aria-hidden="true"
+        inert={isInitialChatLoading ? "" : undefined}
       ></div>
 
       <Sidebar
@@ -665,9 +683,14 @@ function Chat() {
         onDeleteChat={handleDeleteChat}
         onRenameChat={handleRenameChat}
         onSelectChat={() => setIsSidebarOpen(false)}
+        interactionDisabled={isInitialChatLoading}
       />
 
-      <div className="chat-main">
+      <div
+        className="chat-main"
+        aria-hidden={isInitialChatLoading}
+        inert={isInitialChatLoading ? "" : undefined}
+      >
         <Navbar
           onMenuClick={() => setIsSidebarOpen(true)}
           isMenuOpen={isSidebarOpen}
@@ -703,10 +726,22 @@ function Chat() {
         <button
           className="scroll-bottom-btn"
           onClick={scrollToBottom}
+          disabled={isInitialChatLoading}
+          aria-hidden={isInitialChatLoading}
+          inert={isInitialChatLoading ? "" : undefined}
           aria-label="Scroll to latest message"
         >
           <ChevronDown size={20} strokeWidth={2.4} />
         </button>
+      )}
+
+      {isInitialChatLoading && (
+        <NeuralChatLoadingOverlay
+          label="Restoring NeuralChat workspace"
+          heading="⚡ NeuralChat"
+          title="Restoring your AI workspace..."
+          messages={chatRestoreStatusMessages}
+        />
       )}
     </div>
   );

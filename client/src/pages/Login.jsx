@@ -6,6 +6,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "../components/ui/useDialog";
+import NeuralChatLoadingOverlay from "../components/NeuralChatLoadingOverlay";
 
 const loginStatusMessages = [
   "🔐 Verifying your account...",
@@ -55,7 +56,6 @@ function Login() {
   const googleWarmupTimer = useRef(null);
   const googleFallbackTimer = useRef(null);
   const [loadingMode, setLoadingMode] = useState(null);
-  const [statusIndex, setStatusIndex] = useState(0);
   const [showColdStartNotice, setShowColdStartNotice] = useState(false);
   const isLoading = loadingMode !== null;
   const activeLoadingContent = loadingMode
@@ -69,14 +69,6 @@ function Login() {
   useEffect(() => {
     if (!loadingMode) return;
 
-    const statusTimer = setInterval(() => {
-      setStatusIndex((currentIndex) =>
-        currentIndex === activeLoadingContent.messages.length - 1
-          ? 0
-          : currentIndex + 1,
-      );
-    }, 2500);
-
     const coldStartTimer = setTimeout(() => {
       if (loadingMode === "login") {
         setShowColdStartNotice(true);
@@ -84,10 +76,9 @@ function Login() {
     }, 8000);
 
     return () => {
-      clearInterval(statusTimer);
       clearTimeout(coldStartTimer);
     };
-  }, [activeLoadingContent.messages.length, loadingMode]);
+  }, [loadingMode]);
 
   useEffect(() => {
     return () => {
@@ -100,7 +91,6 @@ function Login() {
     if (googleSignInInFlight.current) return;
 
     googleSignInInFlight.current = true;
-    setStatusIndex(0);
     setShowColdStartNotice(false);
     setLoadingMode("google");
 
@@ -135,7 +125,6 @@ function Login() {
     clearTimeout(googleFallbackTimer.current);
     googleSignInInFlight.current = true;
     googleCredentialExchangeInFlight.current = true;
-    setStatusIndex(0);
     setShowColdStartNotice(false);
     setLoadingMode("google");
 
@@ -180,7 +169,6 @@ function Login() {
     if (loginInFlight.current) return;
 
     loginInFlight.current = true;
-    setStatusIndex(0);
     setShowColdStartNotice(false);
     setLoadingMode("login");
 
@@ -201,7 +189,6 @@ function Login() {
       });
     } finally {
       loginInFlight.current = false;
-      setStatusIndex(0);
       setShowColdStartNotice(false);
       setLoadingMode(null);
     }
@@ -339,25 +326,12 @@ function Login() {
       </div>
 
       {isLoading && (
-        <div
-          className="login-loading-overlay"
-          role="status"
-          aria-live="polite"
-          aria-label={activeLoadingContent.label}
-        >
-          <div className="login-loading-panel">
-            <div className="loading-logo" aria-hidden="true">
-              ⚡
-            </div>
-            <h2>NeuralChat</h2>
-            <p className="loading-title">{activeLoadingContent.title}</p>
-            <p key={statusIndex} className="loading-status" aria-live="polite">
-              {activeLoadingContent.messages[statusIndex]}
-            </p>
-            <div className="loading-progress" aria-hidden="true">
-              <span></span>
-            </div>
-            {loadingMode === "login" && (
+        <NeuralChatLoadingOverlay
+          label={activeLoadingContent.label}
+          title={activeLoadingContent.title}
+          messages={activeLoadingContent.messages}
+          footer={
+            loadingMode === "login" && (
               <p
                 className={`cold-start-notice${
                   showColdStartNotice ? " visible" : ""
@@ -366,9 +340,9 @@ function Login() {
                 First launch may take a little longer while the secure server
                 wakes up.
               </p>
-            )}
-          </div>
-        </div>
+            )
+          }
+        />
       )}
     </div>
   );

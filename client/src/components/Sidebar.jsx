@@ -11,6 +11,7 @@ function Sidebar({
   onDeleteChat,
   onRenameChat,
   onSelectChat,
+  interactionDisabled = false,
 }) {
   const navigate = useNavigate();
   const inputDialog = useInputDialog();
@@ -25,7 +26,12 @@ function Sidebar({
   );
 
   return (
-    <div className="sidebar" id="chat-sidebar">
+    <div
+      className="sidebar"
+      id="chat-sidebar"
+      aria-hidden={interactionDisabled}
+      inert={interactionDisabled ? "" : undefined}
+    >
       <div className="sidebar-logo">⚡ NeuralChat</div>
 
       <div className="sidebar-search">
