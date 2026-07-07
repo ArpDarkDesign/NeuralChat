@@ -160,11 +160,7 @@ function Register() {
               </button>
             </div>
 
-            <button
-              type="submit"
-              className="signin-btn"
-              onClick={() => navigate("/")}
-            >
+            <button type="submit" className="signin-btn">
               Create Account
             </button>
 
