@@ -39,7 +39,7 @@ function ResetPassword() {
   return (
     <div className="login-page">
       <div className="login-content">
-        <div className="login-card">
+        <div className="login-cards">
           <h1>Create New Password</h1>
 
           <form onSubmit={handleSubmit}>

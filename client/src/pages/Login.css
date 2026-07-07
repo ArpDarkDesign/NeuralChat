@@ -37,7 +37,9 @@
 
   box-shadow: 0 0 40px rgba(138, 92, 255, 0.2);
 }
-
+.login-cards {
+  align-items: center;
+}
 .login-card h1 {
   text-align: center;
   color: white;
