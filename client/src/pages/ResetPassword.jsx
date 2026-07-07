@@ -38,28 +38,30 @@ function ResetPassword() {
 
   return (
     <div className="login-page">
-      <div className="login-card">
-        <h1>Create New Password</h1>
+      <div className="login-content">
+        <div className="login-card">
+          <h1>Create New Password</h1>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="password"
-            placeholder="New Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <form onSubmit={handleSubmit}>
+            <input
+              type="password"
+              placeholder="New Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
 
-          <button type="submit" className="signin-btn">
-            Reset Password
-          </button>
-        </form>
+            <button type="submit" className="signin-btn">
+              Reset Password
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
