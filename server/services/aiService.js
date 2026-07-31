@@ -26,12 +26,24 @@ const getAIResponseStream = async (message, history = [], images = []) => {
     }),
   );
 
+const shortPrompt =
+  message &&
+  message.trim().split(/\s+/).length <= 10;
+
+const finalMessage = shortPrompt
+  ? `Answer briefly unless I ask for more detail.
+
+${message}`
+  : message;
+
+
   const userContent =
     optimizedImages.length > 0
       ? [
           {
             type: "text",
-            text: message || "Describe the attached images.",
+            // text: message || "Describe the attached images.",
+            text: finalMessage || "Describe the attached image.",
           },
           ...optimizedImages.map((image) => ({
             type: "image_url",
@@ -41,7 +53,7 @@ const getAIResponseStream = async (message, history = [], images = []) => {
             },
           })),
         ]
-      : message;
+      : finalMessage;
 
   const conversationHistory = history.map((msg) => ({
     role: msg.sender === "user" ? "user" : "assistant",
@@ -167,10 +179,18 @@ Your goal is to make every answer feel like it came from an experienced engineer
       },
     ],
 
-    model:
-      optimizedImages.length > 0
-        ? "qwen/qwen3.6-27b"
-        : "llama-3.3-70b-versatile",
+
+
+model:
+  optimizedImages.length > 0
+    ? "qwen/qwen3.6-27b"
+    : "openai/gpt-oss-120b",
+
+
+    // model:
+    //   optimizedImages.length > 0
+    //     ? "qwen/qwen3.6-27b"
+    //     : "llama-3.3-70b-versatile",
     stream: true,
   });
 
