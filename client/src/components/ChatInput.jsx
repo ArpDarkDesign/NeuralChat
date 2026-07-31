@@ -124,7 +124,10 @@ function ChatInput({ onSend }) {
                   type="button"
                   onClick={() => {
                     setShowAttachmentMenu(false);
-                    fileInputRef.current?.click();
+                    showToast({
+                      type: "info",
+                      message: "Image uploads are coming soon.",
+                    });
                   }}
                 >
                   <div className="attachment-title">🖼️ Photos</div>
@@ -136,8 +139,6 @@ function ChatInput({ onSend }) {
                   onClick={() => {
                     setShowAttachmentMenu(false);
                     fileInputRef.current?.click();
-
-                    // PDF files are accepted by the current file input.
                   }}
                 >
                   <div className="attachment-title">📄 PDF</div>
